@@ -20,6 +20,10 @@
     "which": "^2.0.2",
     "zx": "^6.0.7"
   },
+  "build": "tsc",
+  "bin": {
+    "fpm": "./dist/src/cli.js"
+  },
   "devDependencies": {
     "@types/inquirer": "^8.2.1"
   },

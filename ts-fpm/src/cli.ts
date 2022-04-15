@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import * as types from "./../types/types"
 import * as api from "./../types/api"
 

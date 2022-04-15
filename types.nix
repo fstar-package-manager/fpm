@@ -147,11 +147,21 @@ fix (self: with self; {
       opts = extractionOptions;
     });
 
+  emailAddress = string;
   packageT = defun [status type]
     (s: struct "${s}PackageT" {
       name        = string;
       lib         = library s;
       extractions = option (attrs (extractionTarget s));
+      license     = option string;
+      license-files = option (list (if s == Unresolved
+                                    then relativePath
+                                    else absolutePath));
+      author     = option string;
+      maintainer = option emailAddress;
+      homepage   = option string;
+      synopsis   = option string;
+      description= option string;
     });
   
   packageSet = defun [status type]

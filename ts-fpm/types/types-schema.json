@@ -372,36 +372,115 @@
                             "properties": {
                                 "inputT": {
                                     "properties": {
-                                        "lib": {
-                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
-                                        },
-                                        "opts": {
+                                        "ocamlBinaries": {
                                             "properties": {
-                                                "codegenLib": {
-                                                    "items": {
-                                                        "type": "string"
-                                                    },
-                                                    "type": "array"
+                                                "OCAMLPATH": {
+                                                    "type": "string"
                                                 },
-                                                "inlineModules": {
-                                                    "type": "boolean"
+                                                "gcc": {
+                                                    "type": "string"
                                                 },
-                                                "lang": {
-                                                    "$ref": "#/definitions/lang"
+                                                "ocamlbin": {
+                                                    "type": "string"
                                                 },
-                                                "normalizePure": {
-                                                    "type": "boolean"
+                                                "ocamlbuild": {
+                                                    "type": "string"
+                                                },
+                                                "ocamlfind": {
+                                                    "type": "string"
                                                 }
                                             },
                                             "required": [
-                                                "lang"
+                                                "OCAMLPATH",
+                                                "gcc",
+                                                "ocamlbin",
+                                                "ocamlbuild",
+                                                "ocamlfind"
+                                            ],
+                                            "type": "object"
+                                        },
+                                        "target": {
+                                            "properties": {
+                                                "lib": {
+                                                    "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                                },
+                                                "opts": {
+                                                    "properties": {
+                                                        "codegenLib": {
+                                                            "items": {
+                                                                "type": "string"
+                                                            },
+                                                            "type": "array"
+                                                        },
+                                                        "inlineModules": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "lang": {
+                                                            "$ref": "#/definitions/lang"
+                                                        },
+                                                        "normalizePure": {
+                                                            "type": "boolean"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "lang"
+                                                    ],
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "required": [
+                                                "lib",
+                                                "opts"
+                                            ],
+                                            "type": "object"
+                                        },
+                                        "verificationBinaries": {
+                                            "properties": {
+                                                "fstar_binary": {
+                                                    "type": "string"
+                                                },
+                                                "ocamlBinaries": {
+                                                    "properties": {
+                                                        "OCAMLPATH": {
+                                                            "type": "string"
+                                                        },
+                                                        "gcc": {
+                                                            "type": "string"
+                                                        },
+                                                        "ocamlbin": {
+                                                            "type": "string"
+                                                        },
+                                                        "ocamlbuild": {
+                                                            "type": "string"
+                                                        },
+                                                        "ocamlfind": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "OCAMLPATH",
+                                                        "gcc",
+                                                        "ocamlbin",
+                                                        "ocamlbuild",
+                                                        "ocamlfind"
+                                                    ],
+                                                    "type": "object"
+                                                },
+                                                "z3_binary": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "fstar_binary",
+                                                "ocamlBinaries",
+                                                "z3_binary"
                                             ],
                                             "type": "object"
                                         }
                                     },
                                     "required": [
-                                        "lib",
-                                        "opts"
+                                        "target",
+                                        "verificationBinaries"
                                     ],
                                     "type": "object"
                                 },
@@ -673,7 +752,90 @@
                             "properties": {
                                 "inputT": {
                                     "properties": {
-                                        "extractionTarget": {
+                                        "packageSet": {
+                                            "additionalProperties": {
+                                                "properties": {
+                                                    "author": {
+                                                        "type": "string"
+                                                    },
+                                                    "description": {
+                                                        "type": "string"
+                                                    },
+                                                    "extractions": {
+                                                        "additionalProperties": {
+                                                            "properties": {
+                                                                "lib": {
+                                                                    "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                                                },
+                                                                "opts": {
+                                                                    "properties": {
+                                                                        "codegenLib": {
+                                                                            "items": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "type": "array"
+                                                                        },
+                                                                        "inlineModules": {
+                                                                            "type": "boolean"
+                                                                        },
+                                                                        "lang": {
+                                                                            "$ref": "#/definitions/lang"
+                                                                        },
+                                                                        "normalizePure": {
+                                                                            "type": "boolean"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "lang"
+                                                                    ],
+                                                                    "type": "object"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "lib",
+                                                                "opts"
+                                                            ],
+                                                            "type": "object"
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "homepage": {
+                                                        "type": "string"
+                                                    },
+                                                    "lib": {
+                                                        "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                                    },
+                                                    "license": {
+                                                        "type": "string"
+                                                    },
+                                                    "license_files": {
+                                                        "items": {
+                                                            "type": "string"
+                                                        },
+                                                        "type": "array"
+                                                    },
+                                                    "maintainer": {
+                                                        "type": "string"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "synopsis": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "lib",
+                                                    "name"
+                                                ],
+                                                "type": "object"
+                                            },
+                                            "type": "object"
+                                        },
+                                        "src": {
+                                            "type": "string"
+                                        },
+                                        "target": {
                                             "properties": {
                                                 "lib": {
                                                     "properties": {
@@ -799,154 +961,47 @@
                                                 "opts"
                                             ],
                                             "type": "object"
-                                        },
-                                        "packageSet": {
-                                            "additionalProperties": {
-                                                "properties": {
-                                                    "extractions": {
-                                                        "additionalProperties": {
-                                                            "properties": {
-                                                                "lib": {
-                                                                    "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
-                                                                },
-                                                                "opts": {
-                                                                    "properties": {
-                                                                        "codegenLib": {
-                                                                            "items": {
-                                                                                "type": "string"
-                                                                            },
-                                                                            "type": "array"
-                                                                        },
-                                                                        "inlineModules": {
-                                                                            "type": "boolean"
-                                                                        },
-                                                                        "lang": {
-                                                                            "$ref": "#/definitions/lang"
-                                                                        },
-                                                                        "normalizePure": {
-                                                                            "type": "boolean"
-                                                                        }
-                                                                    },
-                                                                    "required": [
-                                                                        "lang"
-                                                                    ],
-                                                                    "type": "object"
-                                                                }
-                                                            },
-                                                            "required": [
-                                                                "lib",
-                                                                "opts"
-                                                            ],
-                                                            "type": "object"
-                                                        },
-                                                        "type": "object"
-                                                    },
-                                                    "lib": {
-                                                        "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
-                                                    },
-                                                    "name": {
-                                                        "type": "string"
-                                                    }
-                                                },
-                                                "required": [
-                                                    "lib",
-                                                    "name"
-                                                ],
-                                                "type": "object"
-                                            },
-                                            "type": "object"
                                         }
                                     },
                                     "required": [
-                                        "extractionTarget",
-                                        "packageSet"
+                                        "packageSet",
+                                        "src",
+                                        "target"
                                     ],
                                     "type": "object"
                                 },
                                 "outputT": {
                                     "properties": {
-                                        "binEnv": {
-                                            "properties": {
-                                                "fstar_binary": {
-                                                    "type": "string"
-                                                },
-                                                "ocamlBinaries": {
-                                                    "properties": {
-                                                        "OCAMLPATH": {
-                                                            "type": "string"
-                                                        },
-                                                        "gcc": {
-                                                            "type": "string"
-                                                        },
-                                                        "ocamlbin": {
-                                                            "type": "string"
-                                                        },
-                                                        "ocamlbuild": {
-                                                            "type": "string"
-                                                        },
-                                                        "ocamlfind": {
-                                                            "type": "string"
-                                                        }
-                                                    },
-                                                    "required": [
-                                                        "OCAMLPATH",
-                                                        "gcc",
-                                                        "ocamlbin",
-                                                        "ocamlbuild",
-                                                        "ocamlfind"
-                                                    ],
-                                                    "type": "object"
-                                                },
-                                                "z3_binary": {
-                                                    "type": "string"
-                                                }
-                                            },
-                                            "required": [
-                                                "fstar_binary",
-                                                "ocamlBinaries",
-                                                "z3_binary"
-                                            ],
-                                            "type": "object"
+                                        "lib": {
+                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
                                         },
-                                        "result": {
+                                        "opts": {
                                             "properties": {
-                                                "lib": {
-                                                    "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
-                                                },
-                                                "opts": {
-                                                    "properties": {
-                                                        "codegenLib": {
-                                                            "items": {
-                                                                "type": "string"
-                                                            },
-                                                            "type": "array"
-                                                        },
-                                                        "inlineModules": {
-                                                            "type": "boolean"
-                                                        },
-                                                        "lang": {
-                                                            "$ref": "#/definitions/lang"
-                                                        },
-                                                        "normalizePure": {
-                                                            "type": "boolean"
-                                                        }
+                                                "codegenLib": {
+                                                    "items": {
+                                                        "type": "string"
                                                     },
-                                                    "required": [
-                                                        "lang"
-                                                    ],
-                                                    "type": "object"
+                                                    "type": "array"
+                                                },
+                                                "inlineModules": {
+                                                    "type": "boolean"
+                                                },
+                                                "lang": {
+                                                    "$ref": "#/definitions/lang"
+                                                },
+                                                "normalizePure": {
+                                                    "type": "boolean"
                                                 }
                                             },
                                             "required": [
-                                                "lib",
-                                                "opts"
+                                                "lang"
                                             ],
                                             "type": "object"
                                         }
                                     },
                                     "required": [
-                                        "binEnv",
-                                        "result"
+                                        "lib",
+                                        "opts"
                                     ],
                                     "type": "object"
                                 }
@@ -969,7 +1024,7 @@
                             "properties": {
                                 "inputT": {
                                     "properties": {
-                                        "library": {
+                                        "lib": {
                                             "properties": {
                                                 "dependencies": {
                                                     "items": {
@@ -1067,6 +1122,12 @@
                                         "packageSet": {
                                             "additionalProperties": {
                                                 "properties": {
+                                                    "author": {
+                                                        "type": "string"
+                                                    },
+                                                    "description": {
+                                                        "type": "string"
+                                                    },
                                                     "extractions": {
                                                         "additionalProperties": {
                                                             "properties": {
@@ -1105,10 +1166,28 @@
                                                         },
                                                         "type": "object"
                                                     },
+                                                    "homepage": {
+                                                        "type": "string"
+                                                    },
                                                     "lib": {
                                                         "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
                                                     },
+                                                    "license": {
+                                                        "type": "string"
+                                                    },
+                                                    "license_files": {
+                                                        "items": {
+                                                            "type": "string"
+                                                        },
+                                                        "type": "array"
+                                                    },
+                                                    "maintainer": {
+                                                        "type": "string"
+                                                    },
                                                     "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "synopsis": {
                                                         "type": "string"
                                                     }
                                                 },
@@ -1119,68 +1198,20 @@
                                                 "type": "object"
                                             },
                                             "type": "object"
+                                        },
+                                        "src": {
+                                            "type": "string"
                                         }
                                     },
                                     "required": [
-                                        "library",
-                                        "packageSet"
+                                        "lib",
+                                        "packageSet",
+                                        "src"
                                     ],
                                     "type": "object"
                                 },
                                 "outputT": {
-                                    "properties": {
-                                        "binEnv": {
-                                            "properties": {
-                                                "fstar_binary": {
-                                                    "type": "string"
-                                                },
-                                                "ocamlBinaries": {
-                                                    "properties": {
-                                                        "OCAMLPATH": {
-                                                            "type": "string"
-                                                        },
-                                                        "gcc": {
-                                                            "type": "string"
-                                                        },
-                                                        "ocamlbin": {
-                                                            "type": "string"
-                                                        },
-                                                        "ocamlbuild": {
-                                                            "type": "string"
-                                                        },
-                                                        "ocamlfind": {
-                                                            "type": "string"
-                                                        }
-                                                    },
-                                                    "required": [
-                                                        "OCAMLPATH",
-                                                        "gcc",
-                                                        "ocamlbin",
-                                                        "ocamlbuild",
-                                                        "ocamlfind"
-                                                    ],
-                                                    "type": "object"
-                                                },
-                                                "z3_binary": {
-                                                    "type": "string"
-                                                }
-                                            },
-                                            "required": [
-                                                "fstar_binary",
-                                                "ocamlBinaries",
-                                                "z3_binary"
-                                            ],
-                                            "type": "object"
-                                        },
-                                        "result": {
-                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
-                                        }
-                                    },
-                                    "required": [
-                                        "binEnv",
-                                        "result"
-                                    ],
-                                    "type": "object"
+                                    "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
                                 }
                             },
                             "required": [
@@ -1204,6 +1235,12 @@
                                         "packageSet": {
                                             "additionalProperties": {
                                                 "properties": {
+                                                    "author": {
+                                                        "type": "string"
+                                                    },
+                                                    "description": {
+                                                        "type": "string"
+                                                    },
                                                     "extractions": {
                                                         "additionalProperties": {
                                                             "properties": {
@@ -1242,10 +1279,28 @@
                                                         },
                                                         "type": "object"
                                                     },
+                                                    "homepage": {
+                                                        "type": "string"
+                                                    },
                                                     "lib": {
                                                         "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
                                                     },
+                                                    "license": {
+                                                        "type": "string"
+                                                    },
+                                                    "license_files": {
+                                                        "items": {
+                                                            "type": "string"
+                                                        },
+                                                        "type": "array"
+                                                    },
+                                                    "maintainer": {
+                                                        "type": "string"
+                                                    },
                                                     "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "synopsis": {
                                                         "type": "string"
                                                     }
                                                 },
@@ -1257,8 +1312,14 @@
                                             },
                                             "type": "object"
                                         },
-                                        "packageT": {
+                                        "pkg": {
                                             "properties": {
+                                                "author": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
+                                                    "type": "string"
+                                                },
                                                 "extractions": {
                                                     "additionalProperties": {
                                                         "properties": {
@@ -1389,6 +1450,9 @@
                                                     },
                                                     "type": "object"
                                                 },
+                                                "homepage": {
+                                                    "type": "string"
+                                                },
                                                 "lib": {
                                                     "properties": {
                                                         "dependencies": {
@@ -1484,7 +1548,22 @@
                                                     ],
                                                     "type": "object"
                                                 },
+                                                "license": {
+                                                    "type": "string"
+                                                },
+                                                "license_files": {
+                                                    "items": {
+                                                        "type": "string"
+                                                    },
+                                                    "type": "array"
+                                                },
+                                                "maintainer": {
+                                                    "type": "string"
+                                                },
                                                 "name": {
+                                                    "type": "string"
+                                                },
+                                                "synopsis": {
                                                     "type": "string"
                                                 }
                                             },
@@ -1493,108 +1572,92 @@
                                                 "name"
                                             ],
                                             "type": "object"
+                                        },
+                                        "src": {
+                                            "type": "string"
                                         }
                                     },
                                     "required": [
                                         "packageSet",
-                                        "packageT"
+                                        "pkg",
+                                        "src"
                                     ],
                                     "type": "object"
                                 },
                                 "outputT": {
                                     "properties": {
-                                        "binEnv": {
-                                            "properties": {
-                                                "lib": {
-                                                    "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
-                                                },
-                                                "opts": {
-                                                    "properties": {
-                                                        "codegenLib": {
-                                                            "items": {
-                                                                "type": "string"
-                                                            },
-                                                            "type": "array"
-                                                        },
-                                                        "inlineModules": {
-                                                            "type": "boolean"
-                                                        },
-                                                        "lang": {
-                                                            "$ref": "#/definitions/lang"
-                                                        },
-                                                        "normalizePure": {
-                                                            "type": "boolean"
-                                                        }
-                                                    },
-                                                    "required": [
-                                                        "lang"
-                                                    ],
-                                                    "type": "object"
-                                                }
-                                            },
-                                            "required": [
-                                                "lib",
-                                                "opts"
-                                            ],
-                                            "type": "object"
+                                        "author": {
+                                            "type": "string"
                                         },
-                                        "result": {
-                                            "properties": {
-                                                "extractions": {
-                                                    "additionalProperties": {
+                                        "description": {
+                                            "type": "string"
+                                        },
+                                        "extractions": {
+                                            "additionalProperties": {
+                                                "properties": {
+                                                    "lib": {
+                                                        "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                                    },
+                                                    "opts": {
                                                         "properties": {
-                                                            "lib": {
-                                                                "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
-                                                            },
-                                                            "opts": {
-                                                                "properties": {
-                                                                    "codegenLib": {
-                                                                        "items": {
-                                                                            "type": "string"
-                                                                        },
-                                                                        "type": "array"
-                                                                    },
-                                                                    "inlineModules": {
-                                                                        "type": "boolean"
-                                                                    },
-                                                                    "lang": {
-                                                                        "$ref": "#/definitions/lang"
-                                                                    },
-                                                                    "normalizePure": {
-                                                                        "type": "boolean"
-                                                                    }
+                                                            "codegenLib": {
+                                                                "items": {
+                                                                    "type": "string"
                                                                 },
-                                                                "required": [
-                                                                    "lang"
-                                                                ],
-                                                                "type": "object"
+                                                                "type": "array"
+                                                            },
+                                                            "inlineModules": {
+                                                                "type": "boolean"
+                                                            },
+                                                            "lang": {
+                                                                "$ref": "#/definitions/lang"
+                                                            },
+                                                            "normalizePure": {
+                                                                "type": "boolean"
                                                             }
                                                         },
                                                         "required": [
-                                                            "lib",
-                                                            "opts"
+                                                            "lang"
                                                         ],
                                                         "type": "object"
-                                                    },
-                                                    "type": "object"
+                                                    }
                                                 },
-                                                "lib": {
-                                                    "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
-                                                },
-                                                "name": {
-                                                    "type": "string"
-                                                }
+                                                "required": [
+                                                    "lib",
+                                                    "opts"
+                                                ],
+                                                "type": "object"
                                             },
-                                            "required": [
-                                                "lib",
-                                                "name"
-                                            ],
                                             "type": "object"
+                                        },
+                                        "homepage": {
+                                            "type": "string"
+                                        },
+                                        "lib": {
+                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                        },
+                                        "license": {
+                                            "type": "string"
+                                        },
+                                        "license_files": {
+                                            "items": {
+                                                "type": "string"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "maintainer": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "synopsis": {
+                                            "type": "string"
                                         }
                                     },
                                     "required": [
-                                        "binEnv",
-                                        "result"
+                                        "lib",
+                                        "name"
                                     ],
                                     "type": "object"
                                 }
@@ -1659,6 +1722,12 @@
                                 "outputT": {
                                     "additionalProperties": {
                                         "properties": {
+                                            "author": {
+                                                "type": "string"
+                                            },
+                                            "description": {
+                                                "type": "string"
+                                            },
                                             "extractions": {
                                                 "additionalProperties": {
                                                     "properties": {
@@ -1697,10 +1766,28 @@
                                                 },
                                                 "type": "object"
                                             },
+                                            "homepage": {
+                                                "type": "string"
+                                            },
                                             "lib": {
                                                 "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
                                             },
+                                            "license": {
+                                                "type": "string"
+                                            },
+                                            "license_files": {
+                                                "items": {
+                                                    "type": "string"
+                                                },
+                                                "type": "array"
+                                            },
+                                            "maintainer": {
+                                                "type": "string"
+                                            },
                                             "name": {
+                                                "type": "string"
+                                            },
+                                            "synopsis": {
                                                 "type": "string"
                                             }
                                         },
@@ -1984,10 +2071,1653 @@
                 }
             ]
         },
+        "api_inputs": {
+            "anyOf": [
+                {
+                    "properties": {
+                        "CmxsFilesOfLibrary": {
+                            "properties": {
+                                "lib": {
+                                    "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                },
+                                "ocamlBinaries": {
+                                    "properties": {
+                                        "OCAMLPATH": {
+                                            "type": "string"
+                                        },
+                                        "gcc": {
+                                            "type": "string"
+                                        },
+                                        "ocamlbin": {
+                                            "type": "string"
+                                        },
+                                        "ocamlbuild": {
+                                            "type": "string"
+                                        },
+                                        "ocamlfind": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "OCAMLPATH",
+                                        "gcc",
+                                        "ocamlbin",
+                                        "ocamlbuild",
+                                        "ocamlfind"
+                                    ],
+                                    "type": "object"
+                                },
+                                "verificationBinaries": {
+                                    "properties": {
+                                        "fstar_binary": {
+                                            "type": "string"
+                                        },
+                                        "ocamlBinaries": {
+                                            "properties": {
+                                                "OCAMLPATH": {
+                                                    "type": "string"
+                                                },
+                                                "gcc": {
+                                                    "type": "string"
+                                                },
+                                                "ocamlbin": {
+                                                    "type": "string"
+                                                },
+                                                "ocamlbuild": {
+                                                    "type": "string"
+                                                },
+                                                "ocamlfind": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "OCAMLPATH",
+                                                "gcc",
+                                                "ocamlbin",
+                                                "ocamlbuild",
+                                                "ocamlfind"
+                                            ],
+                                            "type": "object"
+                                        },
+                                        "z3_binary": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "fstar_binary",
+                                        "ocamlBinaries",
+                                        "z3_binary"
+                                    ],
+                                    "type": "object"
+                                }
+                            },
+                            "required": [
+                                "lib",
+                                "ocamlBinaries",
+                                "verificationBinaries"
+                            ],
+                            "type": "object"
+                        }
+                    },
+                    "required": [
+                        "CmxsFilesOfLibrary"
+                    ],
+                    "type": "object"
+                },
+                {
+                    "properties": {
+                        "CmxsOfLibrary": {
+                            "properties": {
+                                "lib": {
+                                    "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                },
+                                "ocamlBinaries": {
+                                    "properties": {
+                                        "OCAMLPATH": {
+                                            "type": "string"
+                                        },
+                                        "gcc": {
+                                            "type": "string"
+                                        },
+                                        "ocamlbin": {
+                                            "type": "string"
+                                        },
+                                        "ocamlbuild": {
+                                            "type": "string"
+                                        },
+                                        "ocamlfind": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "OCAMLPATH",
+                                        "gcc",
+                                        "ocamlbin",
+                                        "ocamlbuild",
+                                        "ocamlfind"
+                                    ],
+                                    "type": "object"
+                                },
+                                "verificationBinaries": {
+                                    "properties": {
+                                        "fstar_binary": {
+                                            "type": "string"
+                                        },
+                                        "ocamlBinaries": {
+                                            "properties": {
+                                                "OCAMLPATH": {
+                                                    "type": "string"
+                                                },
+                                                "gcc": {
+                                                    "type": "string"
+                                                },
+                                                "ocamlbin": {
+                                                    "type": "string"
+                                                },
+                                                "ocamlbuild": {
+                                                    "type": "string"
+                                                },
+                                                "ocamlfind": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "OCAMLPATH",
+                                                "gcc",
+                                                "ocamlbin",
+                                                "ocamlbuild",
+                                                "ocamlfind"
+                                            ],
+                                            "type": "object"
+                                        },
+                                        "z3_binary": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "fstar_binary",
+                                        "ocamlBinaries",
+                                        "z3_binary"
+                                    ],
+                                    "type": "object"
+                                }
+                            },
+                            "required": [
+                                "lib",
+                                "ocamlBinaries",
+                                "verificationBinaries"
+                            ],
+                            "type": "object"
+                        }
+                    },
+                    "required": [
+                        "CmxsOfLibrary"
+                    ],
+                    "type": "object"
+                },
+                {
+                    "properties": {
+                        "ExtractModules": {
+                            "properties": {
+                                "extractionOptions": {
+                                    "properties": {
+                                        "codegenLib": {
+                                            "items": {
+                                                "type": "string"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "inlineModules": {
+                                            "type": "boolean"
+                                        },
+                                        "lang": {
+                                            "$ref": "#/definitions/lang"
+                                        },
+                                        "normalizePure": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "required": [
+                                        "lang"
+                                    ],
+                                    "type": "object"
+                                },
+                                "includePaths": {
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "type": "array"
+                                },
+                                "modules": {
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "type": "array"
+                                },
+                                "verificationBinaries": {
+                                    "properties": {
+                                        "fstar_binary": {
+                                            "type": "string"
+                                        },
+                                        "ocamlBinaries": {
+                                            "properties": {
+                                                "OCAMLPATH": {
+                                                    "type": "string"
+                                                },
+                                                "gcc": {
+                                                    "type": "string"
+                                                },
+                                                "ocamlbin": {
+                                                    "type": "string"
+                                                },
+                                                "ocamlbuild": {
+                                                    "type": "string"
+                                                },
+                                                "ocamlfind": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "OCAMLPATH",
+                                                "gcc",
+                                                "ocamlbin",
+                                                "ocamlbuild",
+                                                "ocamlfind"
+                                            ],
+                                            "type": "object"
+                                        },
+                                        "z3_binary": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "fstar_binary",
+                                        "ocamlBinaries",
+                                        "z3_binary"
+                                    ],
+                                    "type": "object"
+                                }
+                            },
+                            "required": [
+                                "extractionOptions",
+                                "includePaths",
+                                "modules",
+                                "verificationBinaries"
+                            ],
+                            "type": "object"
+                        }
+                    },
+                    "required": [
+                        "ExtractModules"
+                    ],
+                    "type": "object"
+                },
+                {
+                    "properties": {
+                        "ExtractTarget": {
+                            "properties": {
+                                "ocamlBinaries": {
+                                    "properties": {
+                                        "OCAMLPATH": {
+                                            "type": "string"
+                                        },
+                                        "gcc": {
+                                            "type": "string"
+                                        },
+                                        "ocamlbin": {
+                                            "type": "string"
+                                        },
+                                        "ocamlbuild": {
+                                            "type": "string"
+                                        },
+                                        "ocamlfind": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "OCAMLPATH",
+                                        "gcc",
+                                        "ocamlbin",
+                                        "ocamlbuild",
+                                        "ocamlfind"
+                                    ],
+                                    "type": "object"
+                                },
+                                "target": {
+                                    "properties": {
+                                        "lib": {
+                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                        },
+                                        "opts": {
+                                            "properties": {
+                                                "codegenLib": {
+                                                    "items": {
+                                                        "type": "string"
+                                                    },
+                                                    "type": "array"
+                                                },
+                                                "inlineModules": {
+                                                    "type": "boolean"
+                                                },
+                                                "lang": {
+                                                    "$ref": "#/definitions/lang"
+                                                },
+                                                "normalizePure": {
+                                                    "type": "boolean"
+                                                }
+                                            },
+                                            "required": [
+                                                "lang"
+                                            ],
+                                            "type": "object"
+                                        }
+                                    },
+                                    "required": [
+                                        "lib",
+                                        "opts"
+                                    ],
+                                    "type": "object"
+                                },
+                                "verificationBinaries": {
+                                    "properties": {
+                                        "fstar_binary": {
+                                            "type": "string"
+                                        },
+                                        "ocamlBinaries": {
+                                            "properties": {
+                                                "OCAMLPATH": {
+                                                    "type": "string"
+                                                },
+                                                "gcc": {
+                                                    "type": "string"
+                                                },
+                                                "ocamlbin": {
+                                                    "type": "string"
+                                                },
+                                                "ocamlbuild": {
+                                                    "type": "string"
+                                                },
+                                                "ocamlfind": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "OCAMLPATH",
+                                                "gcc",
+                                                "ocamlbin",
+                                                "ocamlbuild",
+                                                "ocamlfind"
+                                            ],
+                                            "type": "object"
+                                        },
+                                        "z3_binary": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "fstar_binary",
+                                        "ocamlBinaries",
+                                        "z3_binary"
+                                    ],
+                                    "type": "object"
+                                }
+                            },
+                            "required": [
+                                "target",
+                                "verificationBinaries"
+                            ],
+                            "type": "object"
+                        }
+                    },
+                    "required": [
+                        "ExtractTarget"
+                    ],
+                    "type": "object"
+                },
+                {
+                    "properties": {
+                        "IncludePathsOfLibrary": {
+                            "properties": {
+                                "lib": {
+                                    "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                },
+                                "ocamlBinaries": {
+                                    "properties": {
+                                        "OCAMLPATH": {
+                                            "type": "string"
+                                        },
+                                        "gcc": {
+                                            "type": "string"
+                                        },
+                                        "ocamlbin": {
+                                            "type": "string"
+                                        },
+                                        "ocamlbuild": {
+                                            "type": "string"
+                                        },
+                                        "ocamlfind": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "OCAMLPATH",
+                                        "gcc",
+                                        "ocamlbin",
+                                        "ocamlbuild",
+                                        "ocamlfind"
+                                    ],
+                                    "type": "object"
+                                },
+                                "verificationBinaries": {
+                                    "properties": {
+                                        "fstar_binary": {
+                                            "type": "string"
+                                        },
+                                        "ocamlBinaries": {
+                                            "properties": {
+                                                "OCAMLPATH": {
+                                                    "type": "string"
+                                                },
+                                                "gcc": {
+                                                    "type": "string"
+                                                },
+                                                "ocamlbin": {
+                                                    "type": "string"
+                                                },
+                                                "ocamlbuild": {
+                                                    "type": "string"
+                                                },
+                                                "ocamlfind": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "OCAMLPATH",
+                                                "gcc",
+                                                "ocamlbin",
+                                                "ocamlbuild",
+                                                "ocamlfind"
+                                            ],
+                                            "type": "object"
+                                        },
+                                        "z3_binary": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "fstar_binary",
+                                        "ocamlBinaries",
+                                        "z3_binary"
+                                    ],
+                                    "type": "object"
+                                }
+                            },
+                            "required": [
+                                "lib",
+                                "verificationBinaries"
+                            ],
+                            "type": "object"
+                        }
+                    },
+                    "required": [
+                        "IncludePathsOfLibrary"
+                    ],
+                    "type": "object"
+                },
+                {
+                    "properties": {
+                        "OCamlCmxsBuilder": {
+                            "properties": {
+                                "cmxsName": {
+                                    "type": "string"
+                                },
+                                "extractionProduct": {
+                                    "type": "string"
+                                },
+                                "ocamlBinaries": {
+                                    "properties": {
+                                        "OCAMLPATH": {
+                                            "type": "string"
+                                        },
+                                        "gcc": {
+                                            "type": "string"
+                                        },
+                                        "ocamlbin": {
+                                            "type": "string"
+                                        },
+                                        "ocamlbuild": {
+                                            "type": "string"
+                                        },
+                                        "ocamlfind": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "OCAMLPATH",
+                                        "gcc",
+                                        "ocamlbin",
+                                        "ocamlbuild",
+                                        "ocamlfind"
+                                    ],
+                                    "type": "object"
+                                },
+                                "ocamlPackages": {
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "type": "array"
+                                }
+                            },
+                            "required": [
+                                "cmxsName",
+                                "extractionProduct",
+                                "ocamlBinaries",
+                                "ocamlPackages"
+                            ],
+                            "type": "object"
+                        }
+                    },
+                    "required": [
+                        "OCamlCmxsBuilder"
+                    ],
+                    "type": "object"
+                },
+                {
+                    "properties": {
+                        "ResolveBinaries": {
+                            "properties": {
+                                "fstar_binary": {
+                                    "type": "string"
+                                },
+                                "z3_binary": {
+                                    "type": "string"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    },
+                    "required": [
+                        "ResolveBinaries"
+                    ],
+                    "type": "object"
+                },
+                {
+                    "properties": {
+                        "ResolveExtractionTarget": {
+                            "properties": {
+                                "packageSet": {
+                                    "additionalProperties": {
+                                        "properties": {
+                                            "author": {
+                                                "type": "string"
+                                            },
+                                            "description": {
+                                                "type": "string"
+                                            },
+                                            "extractions": {
+                                                "additionalProperties": {
+                                                    "properties": {
+                                                        "lib": {
+                                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                                        },
+                                                        "opts": {
+                                                            "properties": {
+                                                                "codegenLib": {
+                                                                    "items": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "type": "array"
+                                                                },
+                                                                "inlineModules": {
+                                                                    "type": "boolean"
+                                                                },
+                                                                "lang": {
+                                                                    "$ref": "#/definitions/lang"
+                                                                },
+                                                                "normalizePure": {
+                                                                    "type": "boolean"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "lang"
+                                                            ],
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "lib",
+                                                        "opts"
+                                                    ],
+                                                    "type": "object"
+                                                },
+                                                "type": "object"
+                                            },
+                                            "homepage": {
+                                                "type": "string"
+                                            },
+                                            "lib": {
+                                                "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                            },
+                                            "license": {
+                                                "type": "string"
+                                            },
+                                            "license_files": {
+                                                "items": {
+                                                    "type": "string"
+                                                },
+                                                "type": "array"
+                                            },
+                                            "maintainer": {
+                                                "type": "string"
+                                            },
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "synopsis": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "required": [
+                                            "lib",
+                                            "name"
+                                        ],
+                                        "type": "object"
+                                    },
+                                    "type": "object"
+                                },
+                                "src": {
+                                    "type": "string"
+                                },
+                                "target": {
+                                    "properties": {
+                                        "lib": {
+                                            "properties": {
+                                                "dependencies": {
+                                                    "items": {
+                                                        "type": "string"
+                                                    },
+                                                    "type": "array"
+                                                },
+                                                "modules": {
+                                                    "items": {
+                                                        "type": "string"
+                                                    },
+                                                    "type": "array"
+                                                },
+                                                "verificationBinaries": {
+                                                    "properties": {
+                                                        "fstar_binary": {
+                                                            "type": "string"
+                                                        },
+                                                        "z3_binary": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "verificationOptions": {
+                                                    "properties": {
+                                                        "MLish": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "fuel": {
+                                                            "properties": {
+                                                                "initial": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "max": {
+                                                                    "type": "integer"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "ifuel": {
+                                                            "properties": {
+                                                                "initial": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "max": {
+                                                                    "type": "integer"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "no_default_include": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "no_load_fstartaclib": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "no_smt": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "quake": {
+                                                            "properties": {
+                                                                "m": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "n": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "unconditionally": {
+                                                                    "type": "boolean"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "n"
+                                                            ],
+                                                            "type": "object"
+                                                        },
+                                                        "retry": {
+                                                            "type": "integer"
+                                                        },
+                                                        "unsafe_tactic_exec": {
+                                                            "type": "boolean"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "required": [
+                                                "dependencies",
+                                                "modules",
+                                                "verificationOptions"
+                                            ],
+                                            "type": "object"
+                                        },
+                                        "opts": {
+                                            "properties": {
+                                                "codegenLib": {
+                                                    "items": {
+                                                        "type": "string"
+                                                    },
+                                                    "type": "array"
+                                                },
+                                                "inlineModules": {
+                                                    "type": "boolean"
+                                                },
+                                                "lang": {
+                                                    "$ref": "#/definitions/lang"
+                                                },
+                                                "normalizePure": {
+                                                    "type": "boolean"
+                                                }
+                                            },
+                                            "required": [
+                                                "lang"
+                                            ],
+                                            "type": "object"
+                                        }
+                                    },
+                                    "required": [
+                                        "lib",
+                                        "opts"
+                                    ],
+                                    "type": "object"
+                                }
+                            },
+                            "required": [
+                                "packageSet",
+                                "src",
+                                "target"
+                            ],
+                            "type": "object"
+                        }
+                    },
+                    "required": [
+                        "ResolveExtractionTarget"
+                    ],
+                    "type": "object"
+                },
+                {
+                    "properties": {
+                        "ResolveLibrary": {
+                            "properties": {
+                                "lib": {
+                                    "properties": {
+                                        "dependencies": {
+                                            "items": {
+                                                "type": "string"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "modules": {
+                                            "items": {
+                                                "type": "string"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "verificationBinaries": {
+                                            "properties": {
+                                                "fstar_binary": {
+                                                    "type": "string"
+                                                },
+                                                "z3_binary": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "verificationOptions": {
+                                            "properties": {
+                                                "MLish": {
+                                                    "type": "boolean"
+                                                },
+                                                "fuel": {
+                                                    "properties": {
+                                                        "initial": {
+                                                            "type": "integer"
+                                                        },
+                                                        "max": {
+                                                            "type": "integer"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "ifuel": {
+                                                    "properties": {
+                                                        "initial": {
+                                                            "type": "integer"
+                                                        },
+                                                        "max": {
+                                                            "type": "integer"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "no_default_include": {
+                                                    "type": "boolean"
+                                                },
+                                                "no_load_fstartaclib": {
+                                                    "type": "boolean"
+                                                },
+                                                "no_smt": {
+                                                    "type": "boolean"
+                                                },
+                                                "quake": {
+                                                    "properties": {
+                                                        "m": {
+                                                            "type": "integer"
+                                                        },
+                                                        "n": {
+                                                            "type": "integer"
+                                                        },
+                                                        "unconditionally": {
+                                                            "type": "boolean"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "n"
+                                                    ],
+                                                    "type": "object"
+                                                },
+                                                "retry": {
+                                                    "type": "integer"
+                                                },
+                                                "unsafe_tactic_exec": {
+                                                    "type": "boolean"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "required": [
+                                        "dependencies",
+                                        "modules",
+                                        "verificationOptions"
+                                    ],
+                                    "type": "object"
+                                },
+                                "packageSet": {
+                                    "additionalProperties": {
+                                        "properties": {
+                                            "author": {
+                                                "type": "string"
+                                            },
+                                            "description": {
+                                                "type": "string"
+                                            },
+                                            "extractions": {
+                                                "additionalProperties": {
+                                                    "properties": {
+                                                        "lib": {
+                                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                                        },
+                                                        "opts": {
+                                                            "properties": {
+                                                                "codegenLib": {
+                                                                    "items": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "type": "array"
+                                                                },
+                                                                "inlineModules": {
+                                                                    "type": "boolean"
+                                                                },
+                                                                "lang": {
+                                                                    "$ref": "#/definitions/lang"
+                                                                },
+                                                                "normalizePure": {
+                                                                    "type": "boolean"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "lang"
+                                                            ],
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "lib",
+                                                        "opts"
+                                                    ],
+                                                    "type": "object"
+                                                },
+                                                "type": "object"
+                                            },
+                                            "homepage": {
+                                                "type": "string"
+                                            },
+                                            "lib": {
+                                                "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                            },
+                                            "license": {
+                                                "type": "string"
+                                            },
+                                            "license_files": {
+                                                "items": {
+                                                    "type": "string"
+                                                },
+                                                "type": "array"
+                                            },
+                                            "maintainer": {
+                                                "type": "string"
+                                            },
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "synopsis": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "required": [
+                                            "lib",
+                                            "name"
+                                        ],
+                                        "type": "object"
+                                    },
+                                    "type": "object"
+                                },
+                                "src": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "lib",
+                                "packageSet",
+                                "src"
+                            ],
+                            "type": "object"
+                        }
+                    },
+                    "required": [
+                        "ResolveLibrary"
+                    ],
+                    "type": "object"
+                },
+                {
+                    "properties": {
+                        "ResolvePackage": {
+                            "properties": {
+                                "packageSet": {
+                                    "additionalProperties": {
+                                        "properties": {
+                                            "author": {
+                                                "type": "string"
+                                            },
+                                            "description": {
+                                                "type": "string"
+                                            },
+                                            "extractions": {
+                                                "additionalProperties": {
+                                                    "properties": {
+                                                        "lib": {
+                                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                                        },
+                                                        "opts": {
+                                                            "properties": {
+                                                                "codegenLib": {
+                                                                    "items": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "type": "array"
+                                                                },
+                                                                "inlineModules": {
+                                                                    "type": "boolean"
+                                                                },
+                                                                "lang": {
+                                                                    "$ref": "#/definitions/lang"
+                                                                },
+                                                                "normalizePure": {
+                                                                    "type": "boolean"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "lang"
+                                                            ],
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "lib",
+                                                        "opts"
+                                                    ],
+                                                    "type": "object"
+                                                },
+                                                "type": "object"
+                                            },
+                                            "homepage": {
+                                                "type": "string"
+                                            },
+                                            "lib": {
+                                                "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                            },
+                                            "license": {
+                                                "type": "string"
+                                            },
+                                            "license_files": {
+                                                "items": {
+                                                    "type": "string"
+                                                },
+                                                "type": "array"
+                                            },
+                                            "maintainer": {
+                                                "type": "string"
+                                            },
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "synopsis": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "required": [
+                                            "lib",
+                                            "name"
+                                        ],
+                                        "type": "object"
+                                    },
+                                    "type": "object"
+                                },
+                                "pkg": {
+                                    "properties": {
+                                        "author": {
+                                            "type": "string"
+                                        },
+                                        "description": {
+                                            "type": "string"
+                                        },
+                                        "extractions": {
+                                            "additionalProperties": {
+                                                "properties": {
+                                                    "lib": {
+                                                        "properties": {
+                                                            "dependencies": {
+                                                                "items": {
+                                                                    "type": "string"
+                                                                },
+                                                                "type": "array"
+                                                            },
+                                                            "modules": {
+                                                                "items": {
+                                                                    "type": "string"
+                                                                },
+                                                                "type": "array"
+                                                            },
+                                                            "verificationBinaries": {
+                                                                "properties": {
+                                                                    "fstar_binary": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "z3_binary": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "verificationOptions": {
+                                                                "properties": {
+                                                                    "MLish": {
+                                                                        "type": "boolean"
+                                                                    },
+                                                                    "fuel": {
+                                                                        "properties": {
+                                                                            "initial": {
+                                                                                "type": "integer"
+                                                                            },
+                                                                            "max": {
+                                                                                "type": "integer"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "ifuel": {
+                                                                        "properties": {
+                                                                            "initial": {
+                                                                                "type": "integer"
+                                                                            },
+                                                                            "max": {
+                                                                                "type": "integer"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "no_default_include": {
+                                                                        "type": "boolean"
+                                                                    },
+                                                                    "no_load_fstartaclib": {
+                                                                        "type": "boolean"
+                                                                    },
+                                                                    "no_smt": {
+                                                                        "type": "boolean"
+                                                                    },
+                                                                    "quake": {
+                                                                        "properties": {
+                                                                            "m": {
+                                                                                "type": "integer"
+                                                                            },
+                                                                            "n": {
+                                                                                "type": "integer"
+                                                                            },
+                                                                            "unconditionally": {
+                                                                                "type": "boolean"
+                                                                            }
+                                                                        },
+                                                                        "required": [
+                                                                            "n"
+                                                                        ],
+                                                                        "type": "object"
+                                                                    },
+                                                                    "retry": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "unsafe_tactic_exec": {
+                                                                        "type": "boolean"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "dependencies",
+                                                            "modules",
+                                                            "verificationOptions"
+                                                        ],
+                                                        "type": "object"
+                                                    },
+                                                    "opts": {
+                                                        "properties": {
+                                                            "codegenLib": {
+                                                                "items": {
+                                                                    "type": "string"
+                                                                },
+                                                                "type": "array"
+                                                            },
+                                                            "inlineModules": {
+                                                                "type": "boolean"
+                                                            },
+                                                            "lang": {
+                                                                "$ref": "#/definitions/lang"
+                                                            },
+                                                            "normalizePure": {
+                                                                "type": "boolean"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "lang"
+                                                        ],
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "lib",
+                                                    "opts"
+                                                ],
+                                                "type": "object"
+                                            },
+                                            "type": "object"
+                                        },
+                                        "homepage": {
+                                            "type": "string"
+                                        },
+                                        "lib": {
+                                            "properties": {
+                                                "dependencies": {
+                                                    "items": {
+                                                        "type": "string"
+                                                    },
+                                                    "type": "array"
+                                                },
+                                                "modules": {
+                                                    "items": {
+                                                        "type": "string"
+                                                    },
+                                                    "type": "array"
+                                                },
+                                                "verificationBinaries": {
+                                                    "properties": {
+                                                        "fstar_binary": {
+                                                            "type": "string"
+                                                        },
+                                                        "z3_binary": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "verificationOptions": {
+                                                    "properties": {
+                                                        "MLish": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "fuel": {
+                                                            "properties": {
+                                                                "initial": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "max": {
+                                                                    "type": "integer"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "ifuel": {
+                                                            "properties": {
+                                                                "initial": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "max": {
+                                                                    "type": "integer"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "no_default_include": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "no_load_fstartaclib": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "no_smt": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "quake": {
+                                                            "properties": {
+                                                                "m": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "n": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "unconditionally": {
+                                                                    "type": "boolean"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "n"
+                                                            ],
+                                                            "type": "object"
+                                                        },
+                                                        "retry": {
+                                                            "type": "integer"
+                                                        },
+                                                        "unsafe_tactic_exec": {
+                                                            "type": "boolean"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "required": [
+                                                "dependencies",
+                                                "modules",
+                                                "verificationOptions"
+                                            ],
+                                            "type": "object"
+                                        },
+                                        "license": {
+                                            "type": "string"
+                                        },
+                                        "license_files": {
+                                            "items": {
+                                                "type": "string"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "maintainer": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "synopsis": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "lib",
+                                        "name"
+                                    ],
+                                    "type": "object"
+                                },
+                                "src": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "packageSet",
+                                "pkg",
+                                "src"
+                            ],
+                            "type": "object"
+                        }
+                    },
+                    "required": [
+                        "ResolvePackage"
+                    ],
+                    "type": "object"
+                },
+                {
+                    "properties": {
+                        "ResolvePackageSet": {
+                            "properties": {
+                                "packageSet": {
+                                    "additionalProperties": {
+                                        "properties": {
+                                            "gitUri": {
+                                                "type": "string"
+                                            },
+                                            "ref": {
+                                                "type": "string"
+                                            },
+                                            "rev": {
+                                                "type": "string"
+                                            },
+                                            "subpath": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "required": [
+                                            "gitUri",
+                                            "ref",
+                                            "rev",
+                                            "subpath"
+                                        ],
+                                        "type": "object"
+                                    },
+                                    "type": "object"
+                                },
+                                "packages": {
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "type": "array"
+                                }
+                            },
+                            "required": [
+                                "packageSet",
+                                "packages"
+                            ],
+                            "type": "object"
+                        }
+                    },
+                    "required": [
+                        "ResolvePackageSet"
+                    ],
+                    "type": "object"
+                },
+                {
+                    "properties": {
+                        "VerifyLibrary": {
+                            "properties": {
+                                "lib": {
+                                    "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                },
+                                "ocamlBinaries": {
+                                    "properties": {
+                                        "OCAMLPATH": {
+                                            "type": "string"
+                                        },
+                                        "gcc": {
+                                            "type": "string"
+                                        },
+                                        "ocamlbin": {
+                                            "type": "string"
+                                        },
+                                        "ocamlbuild": {
+                                            "type": "string"
+                                        },
+                                        "ocamlfind": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "OCAMLPATH",
+                                        "gcc",
+                                        "ocamlbin",
+                                        "ocamlbuild",
+                                        "ocamlfind"
+                                    ],
+                                    "type": "object"
+                                },
+                                "verificationBinaries": {
+                                    "properties": {
+                                        "fstar_binary": {
+                                            "type": "string"
+                                        },
+                                        "ocamlBinaries": {
+                                            "properties": {
+                                                "OCAMLPATH": {
+                                                    "type": "string"
+                                                },
+                                                "gcc": {
+                                                    "type": "string"
+                                                },
+                                                "ocamlbin": {
+                                                    "type": "string"
+                                                },
+                                                "ocamlbuild": {
+                                                    "type": "string"
+                                                },
+                                                "ocamlfind": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "OCAMLPATH",
+                                                "gcc",
+                                                "ocamlbin",
+                                                "ocamlbuild",
+                                                "ocamlfind"
+                                            ],
+                                            "type": "object"
+                                        },
+                                        "z3_binary": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "fstar_binary",
+                                        "ocamlBinaries",
+                                        "z3_binary"
+                                    ],
+                                    "type": "object"
+                                }
+                            },
+                            "required": [
+                                "lib",
+                                "verificationBinaries"
+                            ],
+                            "type": "object"
+                        }
+                    },
+                    "required": [
+                        "VerifyLibrary"
+                    ],
+                    "type": "object"
+                },
+                {
+                    "properties": {
+                        "VerifyModules": {
+                            "properties": {
+                                "includePaths": {
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "type": "array"
+                                },
+                                "modules": {
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "type": "array"
+                                },
+                                "plugins": {
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "type": "array"
+                                },
+                                "verificationBinaries": {
+                                    "properties": {
+                                        "fstar_binary": {
+                                            "type": "string"
+                                        },
+                                        "ocamlBinaries": {
+                                            "properties": {
+                                                "OCAMLPATH": {
+                                                    "type": "string"
+                                                },
+                                                "gcc": {
+                                                    "type": "string"
+                                                },
+                                                "ocamlbin": {
+                                                    "type": "string"
+                                                },
+                                                "ocamlbuild": {
+                                                    "type": "string"
+                                                },
+                                                "ocamlfind": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "OCAMLPATH",
+                                                "gcc",
+                                                "ocamlbin",
+                                                "ocamlbuild",
+                                                "ocamlfind"
+                                            ],
+                                            "type": "object"
+                                        },
+                                        "z3_binary": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "fstar_binary",
+                                        "ocamlBinaries",
+                                        "z3_binary"
+                                    ],
+                                    "type": "object"
+                                },
+                                "verificationOptions": {
+                                    "properties": {
+                                        "MLish": {
+                                            "type": "boolean"
+                                        },
+                                        "fuel": {
+                                            "properties": {
+                                                "initial": {
+                                                    "type": "integer"
+                                                },
+                                                "max": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "ifuel": {
+                                            "properties": {
+                                                "initial": {
+                                                    "type": "integer"
+                                                },
+                                                "max": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "no_default_include": {
+                                            "type": "boolean"
+                                        },
+                                        "no_load_fstartaclib": {
+                                            "type": "boolean"
+                                        },
+                                        "no_smt": {
+                                            "type": "boolean"
+                                        },
+                                        "quake": {
+                                            "properties": {
+                                                "m": {
+                                                    "type": "integer"
+                                                },
+                                                "n": {
+                                                    "type": "integer"
+                                                },
+                                                "unconditionally": {
+                                                    "type": "boolean"
+                                                }
+                                            },
+                                            "required": [
+                                                "n"
+                                            ],
+                                            "type": "object"
+                                        },
+                                        "retry": {
+                                            "type": "integer"
+                                        },
+                                        "unsafe_tactic_exec": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "required": [
+                                "includePaths",
+                                "modules",
+                                "plugins",
+                                "verificationBinaries",
+                                "verificationOptions"
+                            ],
+                            "type": "object"
+                        }
+                    },
+                    "required": [
+                        "VerifyModules"
+                    ],
+                    "type": "object"
+                }
+            ]
+        },
         "checkedFiles": {
             "type": "string"
         },
         "cmxsFile": {
+            "type": "string"
+        },
+        "emailAddress": {
             "type": "string"
         },
         "extractionOptions": {
@@ -2393,6 +4123,12 @@
                 "Resolved": {
                     "additionalProperties": {
                         "properties": {
+                            "author": {
+                                "type": "string"
+                            },
+                            "description": {
+                                "type": "string"
+                            },
                             "extractions": {
                                 "additionalProperties": {
                                     "properties": {
@@ -2431,10 +4167,28 @@
                                 },
                                 "type": "object"
                             },
+                            "homepage": {
+                                "type": "string"
+                            },
                             "lib": {
                                 "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
                             },
+                            "license": {
+                                "type": "string"
+                            },
+                            "license_files": {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            },
+                            "maintainer": {
+                                "type": "string"
+                            },
                             "name": {
+                                "type": "string"
+                            },
+                            "synopsis": {
                                 "type": "string"
                             }
                         },
@@ -2483,6 +4237,12 @@
             "properties": {
                 "Resolved": {
                     "properties": {
+                        "author": {
+                            "type": "string"
+                        },
+                        "description": {
+                            "type": "string"
+                        },
                         "extractions": {
                             "additionalProperties": {
                                 "properties": {
@@ -2521,10 +4281,28 @@
                             },
                             "type": "object"
                         },
+                        "homepage": {
+                            "type": "string"
+                        },
                         "lib": {
                             "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
                         },
+                        "license": {
+                            "type": "string"
+                        },
+                        "license_files": {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        "maintainer": {
+                            "type": "string"
+                        },
                         "name": {
+                            "type": "string"
+                        },
+                        "synopsis": {
                             "type": "string"
                         }
                     },
@@ -2536,6 +4314,12 @@
                 },
                 "Unresolved": {
                     "properties": {
+                        "author": {
+                            "type": "string"
+                        },
+                        "description": {
+                            "type": "string"
+                        },
                         "extractions": {
                             "additionalProperties": {
                                 "properties": {
@@ -2666,6 +4450,9 @@
                             },
                             "type": "object"
                         },
+                        "homepage": {
+                            "type": "string"
+                        },
                         "lib": {
                             "properties": {
                                 "dependencies": {
@@ -2761,7 +4548,22 @@
                             ],
                             "type": "object"
                         },
+                        "license": {
+                            "type": "string"
+                        },
+                        "license_files": {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        "maintainer": {
+                            "type": "string"
+                        },
                         "name": {
+                            "type": "string"
+                        },
+                        "synopsis": {
                             "type": "string"
                         }
                     },

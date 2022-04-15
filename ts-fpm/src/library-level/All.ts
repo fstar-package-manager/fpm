@@ -19,6 +19,25 @@ export let IncludePathsOfLibrary = (config: Config): api.IncludePathsOfLibrary =
             )).flat()
         ];
 
+
+export let ExtractTarget = (config: Config): api.ExtractTarget =>
+    async ({ target, verificationBinaries, ocamlBinaries }) => {
+        let { lib, opts: extractionOptions } = target;
+        ExtractModules({
+            verificationBinaries,
+            extractionOptions,
+            includePaths: await IncludePathsOfLibrary(config)({
+                verificationBinaries,
+                ocamlBinaries,
+                lib
+            }),
+            modules: lib.modules
+        });
+        return {} as any;
+    }
+
+
+
 export let CmxsOfLibrary = (config: Config): api.CmxsOfLibrary =>
     async ({ lib, verificationBinaries, ocamlBinaries }) => {
         let { cacheDir: cache, name: cmxsName } = (await computeLibMetadata(config, lib));

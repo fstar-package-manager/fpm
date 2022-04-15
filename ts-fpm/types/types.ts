@@ -4,6 +4,7 @@ export type absolutePath = string;
 export type absolutePathToDir = string;
 export type checkedFiles = absolutePathToDir;
 export type cmxsFile = absolutePath;
+export type emailAddress = string;
 export type extractionOptions = {
   codegenLib?: namespaceT[];
   inlineModules?: boolean;
@@ -57,14 +58,28 @@ export type packageSet = {
 };
 export type packageT = {
   Resolved: {
+    author?: string;
+    description?: string;
     extractions?: { [key: string]: extractionTarget["Resolved"] };
+    homepage?: string;
     lib: library["Resolved"];
+    license?: string;
+    license_files?: absolutePath[];
+    maintainer?: emailAddress;
     name: string;
+    synopsis?: string;
   };
   Unresolved: {
+    author?: string;
+    description?: string;
     extractions?: { [key: string]: extractionTarget["Unresolved"] };
+    homepage?: string;
     lib: library["Unresolved"];
+    license?: string;
+    license_files?: relativePath[];
+    maintainer?: emailAddress;
     name: string;
+    synopsis?: string;
   };
 };
 export type relativePath = string;

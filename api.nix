@@ -12,6 +12,9 @@ let
   # api = types.sum "api" {
   #   hey = t.string;
   # };
+  api_inputs = types.sum "api" (lib.mapAttrs (k: {inT, outT}:
+    inT
+  ) actions');
   api = types.sum "api" (lib.mapAttrs (k: {inT, outT}:
     (struct "anon" {
       inputT  = inT;
@@ -42,7 +45,11 @@ let
         verificationBinaries = t.verificationBinaries t.Resolved;
       }) t.extractionProduct;
     ExtractTarget = mkEndpoint
-      (t.extractionTarget t.Resolved)
+      (struct "ExtractTarget-inputs" {
+        target = t.extractionTarget t.Resolved;
+        ocamlBinaries = option t.ocamlBinaries;
+        verificationBinaries = t.verificationBinaries t.Resolved;
+      })
       (t.extractionProduct);
     IncludePathsOfLibrary = mkEndpoint
       (struct "IncludePathsOfLibrary" {
@@ -62,31 +69,25 @@ let
       (t.verificationBinaries t.Resolved);
     ResolveExtractionTarget = mkEndpoint
       (struct "ResolveExtractionTarget" {
-        extractionTarget = t.extractionTarget t.Unresolved;
         packageSet = t.packageSet t.Resolved;
+        target = t.extractionTarget t.Unresolved;
+        src = t.absolutePath;
       })
-      (struct "ResolveExtractionTarget-out" {
-        binEnv = t.verificationBinaries t.Resolved;
-        result = t.extractionTarget t.Resolved;
-      });
+      (t.extractionTarget t.Resolved);
     ResolveLibrary = mkEndpoint
       (struct "ResolveLibrary" {
-        library = library t.Unresolved;
         packageSet = t.packageSet t.Resolved;
+        lib = library t.Unresolved;
+        src = t.absolutePath;
       })
-      (struct "ResolveLibrary-out" {
-        binEnv = t.verificationBinaries t.Resolved;
-        result = library t.Resolved;
-      });
+      (library t.Resolved);
     ResolvePackage = mkEndpoint
       (struct "ResolvePackage" {
-        packageT = t.packageT t.Unresolved;
         packageSet = t.packageSet t.Resolved;
+        pkg = t.packageT t.Unresolved;
+        src = t.absolutePath;
       })
-      (struct "ResolvePackage-out" {
-        binEnv = t.extractionTarget t.Resolved;
-        result = t.packageT t.Resolved;
-      });
+      (t.packageT t.Resolved);
     ResolvePackageSet = mkEndpoint
       (struct "ResolvePackageSet" {
         packageSet = t.packageSet t.Unresolved;
@@ -108,4 +109,4 @@ let
       }) (t.checkedFiles);
   };
 in
-actions // {inherit api;}
+actions // {inherit api api_inputs;}

@@ -1,4 +1,4 @@
-import {Resolved, Unresolved, absolutePath, absolutePathToDir, checkedFiles, cmxsFile, extractionOptions, extractionProduct, extractionTarget, fstarModule, fuel, gitReference, includePath, lang, library, moduleName, namespaceT, nat, ocamlBinaries, ocamlPackage, ocamlPackagePlugin, packageName, packageSet, packageT, relativePath, status, verificationBinaries, verificationOptions} from "./types"
+import {Resolved, Unresolved, absolutePath, absolutePathToDir, checkedFiles, cmxsFile, emailAddress, extractionOptions, extractionProduct, extractionTarget, fstarModule, fuel, gitReference, includePath, lang, library, moduleName, namespaceT, nat, ocamlBinaries, ocamlPackage, ocamlPackagePlugin, packageName, packageSet, packageT, relativePath, status, verificationBinaries, verificationOptions} from "./types"
 export type CmxsFilesOfLibrary = (x: {
   lib: library["Resolved"];
   ocamlBinaries: ocamlBinaries;
@@ -15,9 +15,11 @@ export type ExtractModules = (x: {
   modules: fstarModule[];
   verificationBinaries: verificationBinaries["Resolved"];
 }) => Promise<extractionProduct>;
-export type ExtractTarget = (
-  x: extractionTarget["Resolved"]
-) => Promise<extractionProduct>;
+export type ExtractTarget = (x: {
+  ocamlBinaries?: ocamlBinaries;
+  target: extractionTarget["Resolved"];
+  verificationBinaries: verificationBinaries["Resolved"];
+}) => Promise<extractionProduct>;
 export type IncludePathsOfLibrary = (x: {
   lib: library["Resolved"];
   ocamlBinaries?: ocamlBinaries;
@@ -33,26 +35,20 @@ export type ResolveBinaries = (
   x: verificationBinaries["Unresolved"]
 ) => Promise<verificationBinaries["Resolved"]>;
 export type ResolveExtractionTarget = (x: {
-  extractionTarget: extractionTarget["Unresolved"];
   packageSet: packageSet["Resolved"];
-}) => Promise<{
-  binEnv: verificationBinaries["Resolved"];
-  result: extractionTarget["Resolved"];
-}>;
+  src: absolutePath;
+  target: extractionTarget["Unresolved"];
+}) => Promise<extractionTarget["Resolved"]>;
 export type ResolveLibrary = (x: {
-  library: library["Unresolved"];
+  lib: library["Unresolved"];
   packageSet: packageSet["Resolved"];
-}) => Promise<{
-  binEnv: verificationBinaries["Resolved"];
-  result: library["Resolved"];
-}>;
+  src: absolutePath;
+}) => Promise<library["Resolved"]>;
 export type ResolvePackage = (x: {
   packageSet: packageSet["Resolved"];
-  packageT: packageT["Unresolved"];
-}) => Promise<{
-  binEnv: extractionTarget["Resolved"];
-  result: packageT["Resolved"];
-}>;
+  pkg: packageT["Unresolved"];
+  src: absolutePath;
+}) => Promise<packageT["Resolved"]>;
 export type ResolvePackageSet = (x: {
   packageSet: packageSet["Unresolved"];
   packages: string[];
@@ -103,7 +99,11 @@ export type api =
     }
   | {
       ExtractTarget: {
-        inputT: extractionTarget["Resolved"];
+        inputT: {
+          ocamlBinaries?: ocamlBinaries;
+          target: extractionTarget["Resolved"];
+          verificationBinaries: verificationBinaries["Resolved"];
+        };
         outputT: extractionProduct;
       };
     }
@@ -137,37 +137,31 @@ export type api =
   | {
       ResolveExtractionTarget: {
         inputT: {
-          extractionTarget: extractionTarget["Unresolved"];
           packageSet: packageSet["Resolved"];
+          src: absolutePath;
+          target: extractionTarget["Unresolved"];
         };
-        outputT: {
-          binEnv: verificationBinaries["Resolved"];
-          result: extractionTarget["Resolved"];
-        };
+        outputT: extractionTarget["Resolved"];
       };
     }
   | {
       ResolveLibrary: {
         inputT: {
-          library: library["Unresolved"];
+          lib: library["Unresolved"];
           packageSet: packageSet["Resolved"];
+          src: absolutePath;
         };
-        outputT: {
-          binEnv: verificationBinaries["Resolved"];
-          result: library["Resolved"];
-        };
+        outputT: library["Resolved"];
       };
     }
   | {
       ResolvePackage: {
         inputT: {
           packageSet: packageSet["Resolved"];
-          packageT: packageT["Unresolved"];
+          pkg: packageT["Unresolved"];
+          src: absolutePath;
         };
-        outputT: {
-          binEnv: extractionTarget["Resolved"];
-          result: packageT["Resolved"];
-        };
+        outputT: packageT["Resolved"];
       };
     }
   | {
@@ -196,5 +190,94 @@ export type api =
           verificationOptions: verificationOptions;
         };
         outputT: checkedFiles;
+      };
+    };
+export type api_inputs =
+  | {
+      CmxsFilesOfLibrary: {
+        lib: library["Resolved"];
+        ocamlBinaries: ocamlBinaries;
+        verificationBinaries: verificationBinaries["Resolved"];
+      };
+    }
+  | {
+      CmxsOfLibrary: {
+        lib: library["Resolved"];
+        ocamlBinaries: ocamlBinaries;
+        verificationBinaries: verificationBinaries["Resolved"];
+      };
+    }
+  | {
+      ExtractModules: {
+        extractionOptions: extractionOptions;
+        includePaths: includePath[];
+        modules: fstarModule[];
+        verificationBinaries: verificationBinaries["Resolved"];
+      };
+    }
+  | {
+      ExtractTarget: {
+        ocamlBinaries?: ocamlBinaries;
+        target: extractionTarget["Resolved"];
+        verificationBinaries: verificationBinaries["Resolved"];
+      };
+    }
+  | {
+      IncludePathsOfLibrary: {
+        lib: library["Resolved"];
+        ocamlBinaries?: ocamlBinaries;
+        verificationBinaries: verificationBinaries["Resolved"];
+      };
+    }
+  | {
+      OCamlCmxsBuilder: {
+        cmxsName: string;
+        extractionProduct: extractionProduct;
+        ocamlBinaries: ocamlBinaries;
+        ocamlPackages: ocamlPackage[];
+      };
+    }
+  | { ResolveBinaries: verificationBinaries["Unresolved"] }
+  | {
+      ResolveExtractionTarget: {
+        packageSet: packageSet["Resolved"];
+        src: absolutePath;
+        target: extractionTarget["Unresolved"];
+      };
+    }
+  | {
+      ResolveLibrary: {
+        lib: library["Unresolved"];
+        packageSet: packageSet["Resolved"];
+        src: absolutePath;
+      };
+    }
+  | {
+      ResolvePackage: {
+        packageSet: packageSet["Resolved"];
+        pkg: packageT["Unresolved"];
+        src: absolutePath;
+      };
+    }
+  | {
+      ResolvePackageSet: {
+        packageSet: packageSet["Unresolved"];
+        packages: string[];
+      };
+    }
+  | {
+      VerifyLibrary: {
+        lib: library["Resolved"];
+        ocamlBinaries?: ocamlBinaries;
+        verificationBinaries: verificationBinaries["Resolved"];
+      };
+    }
+  | {
+      VerifyModules: {
+        includePaths: includePath[];
+        modules: fstarModule[];
+        plugins: cmxsFile[];
+        verificationBinaries: verificationBinaries["Resolved"];
+        verificationOptions: verificationOptions;
       };
     };

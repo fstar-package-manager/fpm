@@ -24,6 +24,57 @@ class PackageSetResolutionError extends Error {
     }
 }
 
+type maybeLazy<T> = ((x: string) => Promise<T>) | { [key: string]: T }
+async function callMaybeLazy<T>(f: maybeLazy<T>, x: string) {
+    if (f instanceof Function)
+        return await f(x);
+    return f[x];
+}
+type maybeLazyPackageSet = maybeLazy<types.packageT["Resolved"]>
+
+export let ResolveLibraryLazy = async (
+    { packageSet, lib, src }: {
+        packageSet: maybeLazyPackageSet,
+        lib: types.library["Unresolved"],
+        src: types.absolutePath
+    }
+): Promise<types.library["Resolved"]> => ({
+    dependencies: await Promise.all( // sequential?
+        lib.dependencies.map(async l => (await callMaybeLazy(packageSet, l)).lib)
+    ),
+    modules: lib.modules.map(rel => `${src}/${rel}`), // TODO better transformation from rel path to abs one
+    verificationOptions: lib.verificationOptions
+});
+export let ResolveExtractionTargetLazy = async (
+    { target, ...opts }: {
+        packageSet: maybeLazyPackageSet,
+        target: types.extractionTarget["Unresolved"],
+        src: types.absolutePath
+    }
+): Promise<types.extractionTarget["Resolved"]> => ({
+    lib: await ResolveLibraryLazy({ ...opts, lib: target.lib }),
+    opts: target.opts
+});
+export let ResolvePackageLazy = async (
+    { pkg, ...opts }: {
+        packageSet: maybeLazyPackageSet,
+        pkg: types.packageT["Unresolved"],
+        src: types.absolutePath
+    }
+): Promise<types.packageT["Resolved"]> => {
+    let extractions: types.packageT["Resolved"]["extractions"] = {};
+    for (let [name, target] of Object.entries(pkg.extractions || {}))
+        extractions[name] = await ResolveExtractionTargetLazy({ ...opts, target });
+    return {
+        name: pkg.name, extractions,
+        lib: await ResolveLibraryLazy({ ...opts, lib: pkg.lib })
+    };
+}
+
+export let ResolvePackage: api.ResolvePackage = ResolvePackageLazy
+export let ResolveLibrary: api.ResolveLibrary = ResolveLibraryLazy
+export let ResolveExtractionTarget: api.ResolveExtractionTarget = ResolveExtractionTargetLazy
+
 export let ResolvePackageSet = (config: Config): api.ResolvePackageSet =>
     async ({ packageSet, packages }): Promise<types.packageSet["Resolved"]> => {
         let resolved_pkgs: { [key: string]: types.packageT["Resolved"] } = {};
@@ -43,19 +94,8 @@ export let ResolvePackageSet = (config: Config): api.ResolvePackageSet =>
             let json_pkg = JSON.parse(await readFile(path_sources + '/' + PACKAGE_FILE_NAME, 'utf8'));
             return await mapResult(
                 validators.packageT.Unresolved(json_pkg),
-                async unresolved_pkg => {
-                    let resolved_pkg: types.packageT["Resolved"] = {
-                        name: unresolved_pkg.name,
-                        lib: {
-                            dependencies: await Promise.all( // sequential?
-                                unresolved_pkg.lib.dependencies.map(async l => (await resolveOne(l)).lib)
-                            ),
-                            modules: unresolved_pkg.lib.modules.map(rel => `${path_sources}/${rel}`), // TODO better transformation from rel path to abs one
-                            verificationOptions: unresolved_pkg.lib.verificationOptions
-                        }
-                    } as any;
-                    return resolved_pkgs[pkgName] = resolved_pkg;
-                },
+                async unresolved_pkg =>
+                    (resolved_pkgs[pkgName] = await ResolvePackageLazy({ packageSet: resolveOne, pkg: unresolved_pkg, src: path_sources })),
                 errors => {
                     throw new PackageSetResolutionError({ packageSet, packages, kind: 'jsonValidationFailure', validationError: errors })
                 }

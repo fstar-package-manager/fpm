@@ -94,20 +94,18 @@
     "yants": {
       "flake": false,
       "locked": {
-        "dir": "/nix/yxxants",
         "lastModified": 1649713502,
         "narHash": "sha256-wFIH0pDtbwbq7Bh3KLA8YQpbxbargH1FrnDWF/SSV58=",
         "ref": "canon",
         "rev": "4be5aaa0010c870ad70e4bbb84e800b8f8932a87",
         "revCount": 15825,
         "type": "git",
-        "url": "https://code.tvl.fyi/depot.git/?dir=%2fnix%2fyxxants"
+        "url": "https://code.tvl.fyi/depot.git/"
       },
       "original": {
-        "dir": "/nix/yxxants",
         "ref": "canon",
         "type": "git",
-        "url": "https://code.tvl.fyi/depot.git/?dir=%2fnix%2fyxxants"
+        "url": "https://code.tvl.fyi/depot.git/"
       }
     }
   },

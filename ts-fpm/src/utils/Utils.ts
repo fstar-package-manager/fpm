@@ -16,6 +16,10 @@ import path from "path"
 
 export type withDestination<T extends ((x: any) => any)> = (x: Parameters<T>[0], dest?: string) => ReturnType<T>
 
+export type UnionToIntersection<T> =
+    (T extends any ? (x: T) => any : never) extends
+    (x: infer R) => any ? R : never
+
 let execFile_ = promisify(child_process.execFile);
 export async function execFile(
     file: Parameters<typeof execFile_>[0],
@@ -160,13 +164,13 @@ export let ocamlBinariesOfEnv = async (): Promise<ocamlBinaries> => {
 
 export let verificationBinariesOfEnv = async (): Promise<verificationBinaries["Resolved"]> => {
     let whichE = async (binName: string): Promise<absolutePath> => {
-        try { return whichE(binName) }
+        try { return which(binName) }
         catch (details) { throw new BinaryResolutionError({ kind: 'missingBinary', binName, path: process.env.PATH || '', caller: 'verificationBinariesOfEnv', details }) }
     };
     return {
         fstar_binary: await whichE('fstar.exe'),
         ocamlBinaries: await ocamlBinariesOfEnv(),
-        z3_binary: await whichE('z3.exe')
+        z3_binary: await whichE('z3')
     };
 }
 

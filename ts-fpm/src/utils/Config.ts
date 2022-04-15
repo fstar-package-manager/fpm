@@ -23,6 +23,11 @@ export type Config = {
     cachePath: string
 };
 
+export const mkDefaultConfig: () => Config = () => ({
+    defaultPackageSet: "git@github.com:fstar-package-manager/fstarpkgs.git",
+    cachePath: process.cwd() + "/.fpm"
+});
+
 export const PACKAGE_FILE_NAME = 'fstar.json'
 
 export const cachePathOf = {
@@ -100,7 +105,7 @@ export let computeLibMetadata = async (config: Config, lib: types.library["Resol
         ]));
         let cache = config.cachePath + '/_local_librairies/' + hash + '/cache';
         console.warn('[computeLibMetadata] (changes are deteted a bit loosely, removing [${path}] might help if a build fails)');
-        return { cacheDir: path, name: (config.cachePath.split('/').pop() || 'unknown') + '-' + hash.slice(0, 6) };
+        return { cacheDir: cache, name: (config.cachePath.split('/').pop() || 'unknown') + '-' + hash.slice(0, 6) };
     }
 };
 

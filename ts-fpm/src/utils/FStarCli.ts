@@ -24,6 +24,7 @@ export let fstar = async (
     let flags = [
         ...mkFlags("include", include),
         ...mkFlags("load_cmxs", load_cmxs),
+        // TODO respect !bin.z3
         ...(rest || [])
     ];
     console.log([bin.fstar_binary, ...flags].join(' '));

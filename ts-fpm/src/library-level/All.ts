@@ -6,6 +6,14 @@ import * as path from "path"
 
 import { Config, computeLibMetadata } from '../utils/Config'
 import { CmxsOfModules } from '../module-level/CmxsOfModules'
+import { ExtractModules } from "../module-level/ExtractModules"
+
+
+export let IncludePathsOfLibrary_excludingSelf = (config: Config): api.IncludePathsOfLibrary =>
+    async ({ lib, verificationBinaries, ocamlBinaries }) =>
+        (await Promise.all(
+            lib.dependencies.map(lib => IncludePathsOfLibrary(config)({ lib, verificationBinaries, ocamlBinaries }))
+        )).flat();
 
 export let IncludePathsOfLibrary = (config: Config): api.IncludePathsOfLibrary =>
     async ({ lib, verificationBinaries, ocamlBinaries }) =>

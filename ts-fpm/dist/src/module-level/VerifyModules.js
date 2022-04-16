@@ -16,15 +16,7 @@ const tmp_promise_1 = require("tmp-promise");
 const FStarCli_1 = require("../utils/FStarCli");
 const DepTree_1 = require("./DepTree");
 const Utils_1 = require("../utils/Utils");
-class VerifyModulesError extends Error {
-    constructor(cause) {
-        super();
-        this.cause = cause;
-    }
-    get message() {
-        return "[VerifyModulesError.message] TODO";
-    }
-}
+const Exn_1 = require("../utils/Exn");
 let VerifyModules = ({ includePaths, modules, plugins, verificationBinaries, verificationOptions }, destination) => __awaiter(void 0, void 0, void 0, function* () {
     {
         let duplicated = (0, Utils_1.duplicates)([
@@ -33,14 +25,14 @@ let VerifyModules = ({ includePaths, modules, plugins, verificationBinaries, ver
                     return (0, Utils_1.readdir_fullpaths)(path);
                 }
                 catch (e) {
-                    throw new VerifyModulesError({ kind: 'includePathNotFound', path });
+                    throw new Exn_1.VerifyModulesError({ kind: 'includePathNotFound', path });
                 }
             })))
                 .flat().filter(Utils_1.is_fstar_module),
             ...modules, ...plugins
         ], path_1.basename);
         if (duplicated.size)
-            throw new VerifyModulesError({ kind: 'duplicatedModules', duplicated });
+            throw new Exn_1.VerifyModulesError({ kind: 'duplicatedModules', duplicated });
     }
     let all_includes = [...new Set([...[...modules, ...plugins].map(x => (0, path_1.dirname)(x)), ...includePaths])].filter(x => x);
     let module_names = yield (0, DepTree_1.sort_by_dependencies)({

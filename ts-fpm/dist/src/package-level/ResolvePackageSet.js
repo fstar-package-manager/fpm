@@ -26,15 +26,7 @@ const fs_extra_1 = require("fs-extra");
 const Utils_1 = require("./../utils/Utils");
 const Config_1 = require("../utils/Config");
 const Validation_1 = require("./../utils/Validation");
-class PackageSetResolutionError extends Error {
-    constructor(cause) {
-        super();
-        this.cause = cause;
-    }
-    get message() {
-        return "[PackageSetResolutionError.message] TODO";
-    }
-}
+const Exn_1 = require("../utils/Exn");
 function callMaybeLazy(f, x) {
     return __awaiter(this, void 0, void 0, function* () {
         if (f instanceof Function)
@@ -79,7 +71,7 @@ let ResolvePackageSet = (config) => ({ packageSet, packages }) => __awaiter(void
         if (resolved_pkgs[pkgName])
             return resolved_pkgs[pkgName];
         if (!packageSet[pkgName])
-            throw new PackageSetResolutionError({ packageSet, packages, kind: 'packageNotFound', pkgName });
+            throw new Exn_1.PackageSetResolutionError({ packageSet, packages, kind: 'packageNotFound', pkgName });
         let gitRef = packageSet[pkgName];
         let path = yield Config_1.cachePathOf.package(config, pkgName);
         let path_sources = `${path}/src`;
@@ -90,7 +82,7 @@ let ResolvePackageSet = (config) => ({ packageSet, packages }) => __awaiter(void
             }));
         let json_pkg = JSON.parse(yield (0, fs_extra_1.readFile)(path_sources + '/' + Config_1.PACKAGE_FILE_NAME, 'utf8'));
         return yield (0, Validation_1.mapResult)(Validation_1.validators.packageT.Unresolved(json_pkg), (unresolved_pkg) => __awaiter(void 0, void 0, void 0, function* () { return (resolved_pkgs[pkgName] = yield (0, exports.ResolvePackageLazy)({ packageSet: resolveOne, pkg: unresolved_pkg, src: path_sources })); }), errors => {
-            throw new PackageSetResolutionError({ packageSet, packages, kind: 'jsonValidationFailure', validationError: errors });
+            throw new Exn_1.PackageSetResolutionError({ packageSet, packages, kind: 'jsonValidationFailure', pkgName, validationError: errors, gitRef });
         });
     });
     for (let pkg of packages)

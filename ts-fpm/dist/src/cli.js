@@ -36,6 +36,7 @@ const Utils_1 = require("./utils/Utils");
 const All_1 = require("./library-level/All");
 const chalk_1 = __importDefault(require("chalk"));
 const FStarCli_1 = require("./utils/FStarCli");
+const Exn_1 = require("./utils/Exn");
 let getFiles = (dir) => __awaiter(void 0, void 0, void 0, function* () {
     return (yield Promise.all((yield (0, fs_extra_1.readdir)(dir)).map((subdir) => __awaiter(void 0, void 0, void 0, function* () {
         const res = path_1.default.resolve(dir, subdir);
@@ -96,7 +97,22 @@ commander_1.program.command('init')
     }
 }));
 let loadPackage = () => __awaiter(void 0, void 0, void 0, function* () {
-    return (0, Validation_1.mapResult)(Validation_1.validators.packageT.Unresolved(JSON.parse(yield (0, fs_extra_1.readFile)(Config_1.PACKAGE_FILE_NAME, 'utf8'))), p => p, err => { throw "TODO ERROR: BAD FSTAR.JSON"; });
+    let contents;
+    let cwd = process.cwd();
+    let path = cwd + '/' + Config_1.PACKAGE_FILE_NAME;
+    try {
+        contents = yield (0, fs_extra_1.readFile)(path, 'utf8');
+    }
+    catch (e) {
+        console.error(`Error: cannot read package file ${chalk_1.default.bold(path)}. Aborting.`);
+        process.exit(1);
+    }
+    return (0, Validation_1.mapResult)(Validation_1.validators.packageT.Unresolved(JSON.parse(contents)), p => p, err => {
+        console.error(`The package file ${chalk_1.default.bold(path)} is invalid. Aborting.`);
+        console.error(`Validation error details:`);
+        console.error(err);
+        process.exit(1);
+    });
 });
 let withCurrent = (f) => (...rest) => __awaiter(void 0, void 0, void 0, function* () {
     let src = process.cwd();
@@ -165,13 +181,17 @@ commander_1.program.command('fstar')
     }, ...(0, Utils_1.verificationOptions_to_flags)(lib.verificationOptions), ...args);
 })));
 (() => __awaiter(void 0, void 0, void 0, function* () {
-    // TODO catch and pretty print expections here
-    // try {
-    commander_1.program.parse();
-    // } catch (e) {
-    //     if (e instanceof BinaryResolutionError)
-    //         console.log(e);
-    //     console.log('ERROR WAS CATCHED!');
-    // }
+    try {
+        commander_1.program.parse();
+    }
+    catch (e) {
+        if (e instanceof Exn_1.ErrorFPM) {
+            console.error(chalk_1.default.red("Error:"));
+            console.error(e.message);
+        }
+        else {
+            throw e;
+        }
+    }
 }))();
 //# sourceMappingURL=cli.js.map

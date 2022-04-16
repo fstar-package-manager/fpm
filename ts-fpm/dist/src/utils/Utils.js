@@ -41,6 +41,7 @@ const child_process = __importStar(require("child_process"));
 const util_1 = require("util");
 const tmp_promise_1 = require("tmp-promise");
 const simple_git_1 = __importDefault(require("simple-git"));
+const Exn_1 = require("./Exn");
 const which_1 = __importDefault(require("which"));
 const path_1 = __importDefault(require("path"));
 let execFile_ = (0, util_1.promisify)(child_process.execFile);
@@ -146,16 +147,6 @@ let withGitRepo = (gitUri, rev) => (fun) => __awaiter(void 0, void 0, void 0, fu
     }));
 });
 exports.withGitRepo = withGitRepo;
-class BinaryResolutionError extends Error {
-    constructor(cause) {
-        super();
-        this.cause = cause;
-    }
-    get message() {
-        console.log(this.cause);
-        return "[BinaryResolutionError.message] TODO";
-    }
-}
 function ensureDefined(x, error) {
     if (x === undefined)
         throw error;
@@ -167,11 +158,11 @@ let ocamlBinariesOfEnv = () => __awaiter(void 0, void 0, void 0, function* () {
             return (0, which_1.default)(binName);
         }
         catch (details) {
-            throw new BinaryResolutionError({ kind: 'missingBinary', binName, path: process.env.PATH || '', caller: 'ocamlBinariesOfEnv', details });
+            throw new Exn_1.BinaryResolutionError({ kind: 'missingBinary', binName, path: process.env.PATH || '', caller: 'ocamlBinariesOfEnv', details });
         }
     });
     return {
-        OCAMLPATH: ensureDefined(process.env.OCAMLPATH, new BinaryResolutionError({ kind: 'envVarNotFound', varName: 'OCAMLPATH', env: process.env, caller: 'ocamlBinariesOfEnv' })),
+        OCAMLPATH: ensureDefined(process.env.OCAMLPATH, new Exn_1.BinaryResolutionError({ kind: 'envVarNotFound', varName: 'OCAMLPATH', env: process.env, caller: 'ocamlBinariesOfEnv' })),
         gcc: yield whichE('gcc'),
         ocamlbin: path_1.default.resolve((yield whichE('ocamlc')) + '/..'),
         ocamlbuild: yield whichE('ocamlbuild'),
@@ -185,7 +176,7 @@ let verificationBinariesOfEnv = () => __awaiter(void 0, void 0, void 0, function
             return (0, which_1.default)(binName);
         }
         catch (details) {
-            throw new BinaryResolutionError({ kind: 'missingBinary', binName, path: process.env.PATH || '', caller: 'verificationBinariesOfEnv', details });
+            throw new Exn_1.BinaryResolutionError({ kind: 'missingBinary', binName, path: process.env.PATH || '', caller: 'verificationBinariesOfEnv', details });
         }
     });
     return {

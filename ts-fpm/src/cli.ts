@@ -16,6 +16,7 @@ import { CmxsOfLibrary, ExtractTarget, IncludePathsOfLibrary_excludingSelf } fro
 
 import chalk from 'chalk'
 import { fstar } from "./utils/FStarCli"
+import { ErrorFPM } from "./utils/Exn"
 
 let getFiles = async (dir: string): Promise<string[]> =>
     (await Promise.all((await readdir(dir)).map(async (subdir: string): Promise<string[]> => {
@@ -84,12 +85,27 @@ program.command('init')
         }
     })
 
-let loadPackage = async (): Promise<types.packageT["Unresolved"]> =>
-    mapResult(
-        validators.packageT.Unresolved(JSON.parse(await readFile(PACKAGE_FILE_NAME, 'utf8'))),
+let loadPackage = async (): Promise<types.packageT["Unresolved"]> => {
+    let contents;
+    let cwd = process.cwd();
+    let path = cwd + '/' + PACKAGE_FILE_NAME;
+    try {
+        contents = await readFile(path, 'utf8');
+    } catch (e) {
+        console.error(`Error: cannot read package file ${chalk.bold(path)}. Aborting.`);
+        process.exit(1);
+    }
+    return mapResult(
+        validators.packageT.Unresolved(JSON.parse(contents)),
         p => p,
-        err => { throw "TODO ERROR: BAD FSTAR.JSON" }
-    )
+        err => {
+            console.error(`The package file ${chalk.bold(path)} is invalid. Aborting.`);
+            console.error(`Validation error details:`);
+            console.error(err);
+            process.exit(1);
+        }
+    );
+}
 
 let withCurrent = <T>(f: (args: {
     src: string,
@@ -119,7 +135,6 @@ program.command('lock')
 
 program.command('make')
     .action(withCurrent(async ({ pkg, config, verificationBinaries }) => {
-        console.log("XXXXXXXXXXXXXXXXXXX", config);
         call(config)({
             VerifyLibrary: {
                 lib: pkg.lib,
@@ -179,13 +194,15 @@ program.command('fstar')
 
 
 (async () => {
-    // TODO catch and pretty print expections here
-    // try {
-    program.parse();
-    // } catch (e) {
-    //     if (e instanceof BinaryResolutionError)
-    //         console.log(e);
-    //     console.log('ERROR WAS CATCHED!');
-    // }
+    try {
+        program.parse();
+    } catch (e) {
+        if (e instanceof ErrorFPM) {
+            console.error(chalk.red("Error:"));
+            console.error(e.message);
+        } else {
+            throw e;
+        }
+    }
 })();
 

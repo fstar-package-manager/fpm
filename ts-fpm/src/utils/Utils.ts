@@ -10,6 +10,7 @@ import * as child_process from "child_process"
 import { promisify } from "util"
 import { withDir } from "tmp-promise"
 import simpleGit, { SimpleGit } from 'simple-git';
+import { BinaryResolutionError } from './Exn';
 
 import which from "which"
 import path from "path"
@@ -125,22 +126,6 @@ export let withGitRepo = (gitUri: string, rev?: string) =>
             await remove(path); await mkdirp(path);
             return result;
         });
-
-
-
-class BinaryResolutionError extends Error {
-    constructor(public cause: (
-        { kind: 'envVarNotFound', varName: string, env: NodeJS.ProcessEnv, caller: string } |
-        { kind: 'missingBinary', binName: string, path: string, caller: string, details: unknown }
-    )) {
-        super();
-    }
-    get message() {
-        console.log(this.cause);
-        return "[BinaryResolutionError.message] TODO";
-    }
-}
-
 
 function ensureDefined<T>(x: T | undefined, error: Error): T {
     if (x === undefined)

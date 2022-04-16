@@ -5,24 +5,7 @@ import { readFile, move, remove, pathExists } from "fs-extra"
 import { withGitRepo } from './../utils/Utils';
 import { Config, cachePathOf, PACKAGE_FILE_NAME } from '../utils/Config';
 import { validators, mapResult, AjvError } from "./../utils/Validation"
-
-
-class PackageSetResolutionError extends Error {
-    constructor(public cause: (
-        {
-            packageSet: types.packageSet["Unresolved"],
-            packages: string[]
-        } & (
-            { kind: 'packageNotFound', pkgName: string } |
-            { kind: 'jsonValidationFailure', validationError: AjvError }
-        )
-    )) {
-        super();
-    }
-    get message() {
-        return "[PackageSetResolutionError.message] TODO";
-    }
-}
+import { PackageSetResolutionError } from "../utils/Exn";
 
 type maybeLazy<T> = ((x: string) => Promise<T>) | { [key: string]: T }
 async function callMaybeLazy<T>(f: maybeLazy<T>, x: string) {
@@ -97,7 +80,7 @@ export let ResolvePackageSet = (config: Config): api.ResolvePackageSet =>
                 async unresolved_pkg =>
                     (resolved_pkgs[pkgName] = await ResolvePackageLazy({ packageSet: resolveOne, pkg: unresolved_pkg, src: path_sources })),
                 errors => {
-                    throw new PackageSetResolutionError({ packageSet, packages, kind: 'jsonValidationFailure', validationError: errors })
+                    throw new PackageSetResolutionError({ packageSet, packages, kind: 'jsonValidationFailure', pkgName, validationError: errors, gitRef })
                 }
             );
         };

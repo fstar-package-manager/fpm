@@ -7,18 +7,7 @@ import { dir } from "tmp-promise"
 import { fstar } from "../utils/FStarCli"
 import { sort_by_dependencies } from "./DepTree"
 import { duplicates, readdir_fullpaths, is_fstar_module, verificationOptions_to_flags, withDestination } from "../utils/Utils"
-
-class VerifyModulesError extends Error {
-    constructor(public cause: (
-        { kind: 'duplicatedModules', duplicated: Map<string, Set<absolutePath>> } |
-        { kind: 'includePathNotFound', path: absolutePath }
-    )) {
-        super();
-    }
-    get message() {
-        return "[VerifyModulesError.message] TODO";
-    }
-}
+import { VerifyModulesError } from "../utils/Exn"
 
 export let VerifyModules: withDestination<api.VerifyModules> = async (
     {

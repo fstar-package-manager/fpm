@@ -598,6 +598,15 @@ let
         sha512 = "2e+4QhOVO59GeLsHgwSMKNrSKCnuACeA/gMNrLCYR8ID9qwm4hViVt4WsODcUGjx//KDv6GMLC6Hs/MeosgXxg==";
       };
     };
+    "string-similarity-4.0.4" = {
+      name = "string-similarity";
+      packageName = "string-similarity";
+      version = "4.0.4";
+      src = fetchurl {
+        url = "https://registry.npmjs.org/string-similarity/-/string-similarity-4.0.4.tgz";
+        sha512 = "/q/8Q4Bl4ZKAPjj8WerIBJWALKkaPRfrvhfF8k/B23i4nzrlRj2/go1m90In7nG/3XDSbOo0+pu6RvCTM9RGMQ==";
+      };
+    };
     "string-width-4.2.3" = {
       name = "string-width";
       packageName = "string-width";
@@ -831,6 +840,7 @@ let
       sources."safer-buffer-2.1.2"
       sources."signal-exit-3.0.7"
       sources."simple-git-3.6.0"
+      sources."string-similarity-4.0.4"
       sources."string-width-4.2.3"
       sources."string_decoder-1.3.0"
       sources."strip-ansi-6.0.1"

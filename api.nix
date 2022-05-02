@@ -25,45 +25,77 @@ let
     types.defun [inT outT]
   ) actions';
   actions' = {
-    CmxsFilesOfLibrary = mkEndpoint
-      (t.struct "CmxsFilesOfLibrary" {
-        lib = library t.Resolved;
-        ocamlBinaries = t.ocamlBinaries;
+    # Actions on modules
+    VerifyModules = mkEndpoint
+      (struct "VerifyModules" {
+        includePaths = list t.includePath;
+        modules = list t.fstarModule;
+        plugins = list t.ocamlPackagePlugin;
         verificationBinaries = t.verificationBinaries t.Resolved;
-      }) (t.list t.cmxsFile);
-    CmxsOfLibrary = mkEndpoint
-      (struct "CmxsOfLibrary" {
-        lib = library t.Resolved;
-        ocamlBinaries = t.ocamlBinaries;
-        verificationBinaries = t.verificationBinaries t.Resolved;
-      }) (t.cmxsFile);
+        verificationOptions = t.verificationOptions;
+      }) (t.checkedFiles);
     ExtractModules = mkEndpoint
       (struct "ExtractModules" {
         extractionOptions = t.extractionOptions;
         includePaths = list t.includePath;
         modules = list t.fstarModule;
         verificationBinaries = t.verificationBinaries t.Resolved;
+        enableLaxMode = t.option t.bool;
       }) t.extractionProduct;
-    ExtractTarget = mkEndpoint
-      (struct "ExtractTarget-inputs" {
-        target = t.extractionTarget t.Resolved;
-        ocamlBinaries = option t.ocamlBinaries;
-        verificationBinaries = t.verificationBinaries t.Resolved;
-      })
-      (t.extractionProduct);
-    IncludePathsOfLibrary = mkEndpoint
-      (struct "IncludePathsOfLibrary" {
-        lib = library t.Resolved;
-        ocamlBinaries = option t.ocamlBinaries;
-        verificationBinaries = t.verificationBinaries t.Resolved;
-      }) (list t.includePath);
-    OCamlCmxsBuilder = mkEndpoint
-      (struct "OCamlCmxsBuilder" {
+
+    # Build recipies from extraction products
+    OCamlPluginBuilder = mkEndpoint
+      (struct "OCamlPluginBuilder" {
         cmxsName = t.string;
         extractionProduct = t.extractionProduct;
         ocamlBinaries = t.ocamlBinaries;
         ocamlPackages = list t.ocamlPackage;
       }) (t.ocamlPackagePlugin);
+
+    # Actions on libraries
+    VerifyLibrary = mkEndpoint
+      (struct "VerifyLibrary" {
+        lib = library t.Resolved;
+        ocamlBinaries = t.ocamlBinaries; # To compile the plugins of the dependencies
+        verificationBinaries = t.verificationBinaries t.Resolved;
+      }) (t.checkedFiles);
+    PluginOfLibrary = mkEndpoint
+      (struct "PluginOfLibrary" {
+        lib = library t.Resolved;
+        ocamlBinaries = t.ocamlBinaries;
+        verificationBinaries = t.verificationBinaries t.Resolved;
+      }) (t.option t.ocamlPackagePlugin); # if library has no plugin
+    ExtractTarget = mkEndpoint
+      (struct "ExtractTarget-inputs" {
+        target = t.extractionTarget t.Resolved;
+        ocamlBinaries = t.ocamlBinaries; # To compile the plugins of the dependencies
+        verificationBinaries = t.verificationBinaries t.Resolved;
+        # enableLaxMode = t.option t.bool;
+      })
+      (t.extractionProduct);
+    
+    # Collect actions of libraries
+    CollectCheckedOfLibrary = mkEndpoint
+      (t.struct "CollectCheckedOfLibrary" {
+        lib = library t.Resolved;
+        excludeSelf = t.option t.bool;
+        ocamlBinaries = t.ocamlBinaries;
+        verificationBinaries = t.verificationBinaries t.Resolved;
+      }) (t.list t.checkedFiles);
+    CollectPluginsOfLibrary = mkEndpoint
+      (t.struct "CollectPluginsOfLibrary" {
+        lib = library t.Resolved;
+        excludeSelf = t.option t.bool;
+        ocamlBinaries = t.ocamlBinaries;
+        verificationBinaries = t.verificationBinaries t.Resolved;
+      }) (t.list t.ocamlPackagePlugin);
+    CollectModulesOfLibrary = mkEndpoint
+      (struct "CollectModulesOfLibrary" {
+        lib = library t.Resolved;
+        excludeSelf = t.option t.bool;
+      }) (list t.fstarModule);
+    
+    # Resolvers
     ResolveBinaries = mkEndpoint
       (t.verificationBinaries t.Unresolved)
       (t.verificationBinaries t.Resolved);
@@ -93,20 +125,7 @@ let
         packageSet = t.packageSet t.Unresolved;
         packages = list t.string;
       }) (t.packageSet t.Resolved);
-    VerifyLibrary = mkEndpoint
-      (struct "VerifyLibrary" {
-        lib = library t.Resolved;
-        ocamlBinaries = option t.ocamlBinaries;
-        verificationBinaries = t.verificationBinaries t.Resolved;
-      }) (t.checkedFiles);
-    VerifyModules = mkEndpoint
-      (struct "VerifyModules" {
-        includePaths = list t.includePath;
-        modules = list t.fstarModule;
-        plugins = list t.cmxsFile;
-        verificationBinaries = t.verificationBinaries t.Resolved;
-        verificationOptions = t.verificationOptions;
-      }) (t.checkedFiles);
+    
   };
 in
 actions // {inherit api api_inputs;}

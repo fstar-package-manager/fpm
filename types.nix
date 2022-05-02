@@ -43,9 +43,9 @@ fix (self: with self; {
   includePath = absolutePath;
 
   checkedFiles = absolutePathToDir;
-  cmxsFile = restrict "cmxsFile" (p:
-    match cmxsRe "${p}"
-  ) absolutePath;
+  # cmxsFile = restrict "cmxsFile" (p:
+  #   match cmxsRe "${p}"
+  # ) absolutePath;
   fstarModule = restrict "fstarModule" (p:
     match fstarModuleRe "${p}"
   ) absolutePath;
@@ -78,17 +78,11 @@ fix (self: with self; {
     initial = option nat;
     max     = option nat;
   };
-  
-  gitReference = struct "gitReference" {
-    gitUri = string;
-    ref    = string;
-    rev    = string;
-    subpath = string;
-  };
-  
+    
   verificationOptions = mutuallyExclusive "quake" "retry"
     (struct "verificationOptions" {
       MLish  = option bool;
+      lax    = option bool; # TODO: Do we want this parameter here?
       fuel   = option fuel;
       ifuel  = option fuel;
       no_smt = option bool;
@@ -137,13 +131,19 @@ fix (self: with self; {
                            then packageName
                            else library s);
       verificationOptions = verificationOptions;
+      plugin_ocaml_modules = option (list (if s == Unresolved
+                                           then relativePath
+                                           else absolutePath));
+      plugin_ocaml_disable = option bool;
     } // (if s == Resolved then {} else {
       verificationBinaries = option (verificationBinaries Unresolved);
     })));
   
   extractionTarget = defun [status type]
     (s: struct "${s}ExtractionTarget" {
-      lib  = self.library s;
+      lib  = (if s == Unresolved
+              then either packageName
+              else (t: t)) (self.library s);
       opts = extractionOptions;
     });
 
@@ -163,12 +163,20 @@ fix (self: with self; {
       synopsis   = option string;
       description= option string;
     });
+
+  gitReference = struct "gitReference" {
+    gitUri = string;
+    ref    = string;
+    rev    = string;
+    subpath = string;
+  };
+  packageReference = either gitReference relativePath;
   
   packageSet = defun [status type]
     (s: attrsetRestrictedKey
       (attr: match nameRe attr)
       ( if s == Unresolved
-        then gitReference
+        then packageReference
         else packageT s
       )
     );

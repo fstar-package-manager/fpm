@@ -3,7 +3,7 @@
   yants
 }:
 let
-  nullable = t: lib.hasAttr "either" t && lib.elem {raw = "null";} t.either;
+  nullable = t: lib.hasAttr "either" t && lib.elem {raw = "undefined";} t.either;
   compress-eithers = t:
     let h = t: # ts-type -> list ts-type
           let variant = lib.head (lib.attrNames t); in
@@ -17,7 +17,7 @@ let
       else {either = r;};
   either-without-null = t:
     if lib.hasAttr "either" t then
-      {either = lib.filter (x: x != {raw = "null";}) t.either;}
+      {either = lib.filter (x: x != {raw = "undefined";}) t.either;}
     else t;
   ts-type-fields = {
     raw = yants.string;
@@ -134,7 +134,7 @@ let
       int    = {raw = "number";};
       bool   = {raw = "boolean";};
       type   = {raw = "TYPE";};
-      option = t: {either = [t {raw = "null";}];};
+      option = t: {either = [t {raw = "undefined";}];};
       list = t: {list = t;};
       restrict = _: _: t: t;
       # sum = name: set: {either = lib.mapAttrsToList (k: t: {record = {"hey" = {raw = "hola";};};}) set;};

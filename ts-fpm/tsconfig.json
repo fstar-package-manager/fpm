@@ -1,6 +1,7 @@
 {
-  "compilerOptions": {
-    "target": "es2016",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+    "compilerOptions": {
+	"jsx": "react",
+    "target": "es2017",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
     "module": "commonjs",                                /* Specify what module code is generated. */
    //  "rootDir": "src",                                  /* Specify the root folder within your source files. */
     "sourceMap": true,                                /* Create source map files for emitted JavaScript files. */

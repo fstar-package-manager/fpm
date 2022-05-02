@@ -1,21 +1,10 @@
-import { VerifyModules } from "./../module-level/VerifyModules"
-import { OCamlCmxsBuilder } from "./../module-level/OCamlCmxsBuilder"
-import { ExtractModules } from "./../module-level/ExtractModules"
 import * as types from "./../../types/types"
-import * as api from "./../../types/api"
 import "buffer"
-import { mkdirp, readFile, writeFile, move, remove, pathExists } from "fs-extra"
+import { mkdirp, readFile, writeFile, pathExists } from "fs-extra"
 import * as path from "path"
-import { withDir } from "tmp-promise"
-import schemaDefinition from '../../types/types-schema.json';
-import simpleGit, { CleanOptions, SimpleGit, CheckRepoActions, ResetMode } from 'simple-git';
 import { longestPrefix, withGitRepo } from './../utils/Utils';
 import { createHash } from 'crypto';
-import which from 'which';
-
-
-
-
+import chalk from 'chalk';
 
 export type Config = {
     defaultPackageSet: string,
@@ -23,10 +12,23 @@ export type Config = {
     cachePath: string
 };
 
-export const mkDefaultConfig: () => Config = () => ({
-    defaultPackageSet: "git@github.com:fstar-package-manager/fstarpkgs.git",
-    cachePath: process.cwd() + "/.fpm"
-});
+let prefixesOf = <T>(l: T[]): T[][] =>
+    [...Array(l.length + 1).keys()].map((_, i) => l.slice(0, i));
+
+export const mkDefaultConfig = async (): Promise<Config> => {
+    let cwd = process.cwd();
+    let parents = prefixesOf(cwd.split(path.sep)).map(x => [...x, '.fpm'].join(path.sep));
+    let cachePath = cwd + '/.fpm';
+    for (let parent of parents)
+        if (await pathExists(parent)) {
+            cachePath = parent;
+            break;
+        }
+    return {
+        defaultPackageSet: "git@github.com:fstar-package-manager/fstarpkgs.git",
+        cachePath
+    }
+};
 
 export const PACKAGE_FILE_NAME = 'fstar.json'
 
@@ -65,6 +67,8 @@ export async function unresolvedPackageSetOfFlakeLock(flakeLock: any): Promise<t
 };
 
 export let getUnresolvedPackageSet = async (config: Config): Promise<types.packageSet["Unresolved"]> => {
+    console.warn('TODO: this is broken, this downloads all the time');
+    config.fstarpkgs_rev = 'b04ec80c6f5ffc75822d29683d91ae16cf5d75d2'; // TODO hardcocded
     if (config.fstarpkgs_rev !== undefined && await pathExists(await cachePathOf.packageSetJSON(config))) {
         return await JSON.parse(await readFile(await cachePathOf.packageSetJSON(config), 'utf8')) as any;
     } else {
@@ -82,30 +86,46 @@ export let getUnresolvedPackageSet = async (config: Config): Promise<types.packa
     }
 };
 
+// TODO: drop this, figure out something better
+export let getUnresolvedPackageSet_with_overrides = async (config: Config): Promise<types.packageSet["Unresolved"]> => {
+    let filename = "./ps_overrides.json";
+    let overrides: types.packageSet["Unresolved"] = await pathExists("./ps_overrides.json") ? JSON.parse(await readFile(filename, 'utf8')) : {};
+    return { ...await getUnresolvedPackageSet(config), ...overrides };
+};
+
+export let mkHash = (s: string) => createHash('sha256').update(s).digest('hex');
+
 export let computeLibMetadata = async (config: Config, lib: types.library["Resolved"]): Promise<{
     cacheDir: string,
     name: string
 }> => {
-    let path = longestPrefix(lib.modules.map(m => m.split('/'))).join('/');
+    let module_root = longestPrefix(lib.modules.map(m => m.split('/'))).join('/');
     let fstarpkgs_path = await cachePathOf.fstarpkgs(config);
-    if (path.startsWith(fstarpkgs_path)) {
-        let segments_leftover = path.slice(fstarpkgs_path.length).split('/').filter(x => x);
-        if (!segments_leftover.length) {
-            console.error(lib);
-            throw new Error('[computeLibMetadata] Bad location for modules for library:');
-        }
+    let meta;
+    if (module_root.startsWith(fstarpkgs_path)) {
+        let segments_leftover = module_root.slice(fstarpkgs_path.length).split('/').filter(x => x);
+        if (!segments_leftover.length)
+            throw new Error(`The library consisting of modules ${lib.modules.map(m => chalk.bold(path.basename(m))).join(', ')} is malformed. 
+All of its modules should live in exactly one root directory right under ${fstarpkgs_path}.`);
         let name = segments_leftover[0];
-        return { cacheDir: fstarpkgs_path + '/' + name + '/cache', name };
+        meta = { cacheDir: fstarpkgs_path + '/' + name + '/cache', name };
     } else {
-        let mkHash = (s: string) => createHash('sha256').update(s).digest('hex');
-        console.warn('[computeLibMetadata] Experimental cache directory for local libraries used by lib ', lib);
+        // log(Level.WARNING, `Local library ${module_root}: `)
+        // console.warn('[computeLibMetadata] Experimental cache directory for local libraries used by lib [?]');
         let hash = mkHash(JSON.stringify([
             lib,
             await Promise.all(lib.modules.map(p => readFile(p, 'utf8')).map(async f => mkHash(await f)))
         ]));
-        let cache = config.cachePath + '/_local_librairies/' + hash + '/cache';
-        console.warn('[computeLibMetadata] (changes are deteted a bit loosely, removing [${path}] might help if a build fails)');
-        return { cacheDir: cache, name: (config.cachePath.split('/').pop() || 'unknown') + '-' + hash.slice(0, 6) };
+        let name = path.basename(module_root);
+        // console.log({ name, hash, lib });
+        // if (name == 'ulib') throw "xxx";
+        let cache = config.cachePath + '/_local_librairies/' + name + '-' + hash.slice(0, 16) + '/cache';
+        // console.warn('[computeLibMetadata] (changes are deteted a bit loosely, removing [${path}] might help if a build fails)');
+        // console.log({ cachePath: config.cachePath, path })
+        meta = {
+            cacheDir: cache, name: name + '-' + hash.slice(0, 6)
+        };
     }
+    return meta;
 };
 

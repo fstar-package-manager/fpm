@@ -1,5 +1,4 @@
 import { VerifyModules } from "./module-level/VerifyModules"
-import { OCamlCmxsBuilder } from "./module-level/OCamlCmxsBuilder"
 import { ExtractModules } from "./module-level/ExtractModules"
 import * as types from "./../types/types"
 import * as api from "./../types/api"

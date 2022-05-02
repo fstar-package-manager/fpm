@@ -1,10 +1,13 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "definitions": {
-        "CmxsFilesOfLibrary": {
+        "CollectCheckedOfLibrary": {
             "type": "object"
         },
-        "CmxsOfLibrary": {
+        "CollectModulesOfLibrary": {
+            "type": "object"
+        },
+        "CollectPluginsOfLibrary": {
             "type": "object"
         },
         "ExtractModules": {
@@ -13,10 +16,10 @@
         "ExtractTarget": {
             "type": "object"
         },
-        "IncludePathsOfLibrary": {
+        "OCamlPluginBuilder": {
             "type": "object"
         },
-        "OCamlCmxsBuilder": {
+        "PluginOfLibrary": {
             "type": "object"
         },
         "ResolveBinaries": {
@@ -50,12 +53,15 @@
             "anyOf": [
                 {
                     "properties": {
-                        "CmxsFilesOfLibrary": {
+                        "CollectCheckedOfLibrary": {
                             "properties": {
                                 "inputT": {
                                     "properties": {
+                                        "excludeSelf": {
+                                            "type": "boolean"
+                                        },
                                         "lib": {
-                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                                         },
                                         "ocamlBinaries": {
                                             "properties": {
@@ -150,18 +156,58 @@
                         }
                     },
                     "required": [
-                        "CmxsFilesOfLibrary"
+                        "CollectCheckedOfLibrary"
                     ],
                     "type": "object"
                 },
                 {
                     "properties": {
-                        "CmxsOfLibrary": {
+                        "CollectModulesOfLibrary": {
                             "properties": {
                                 "inputT": {
                                     "properties": {
+                                        "excludeSelf": {
+                                            "type": "boolean"
+                                        },
                                         "lib": {
-                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
+                                        }
+                                    },
+                                    "required": [
+                                        "lib"
+                                    ],
+                                    "type": "object"
+                                },
+                                "outputT": {
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "type": "array"
+                                }
+                            },
+                            "required": [
+                                "inputT",
+                                "outputT"
+                            ],
+                            "type": "object"
+                        }
+                    },
+                    "required": [
+                        "CollectModulesOfLibrary"
+                    ],
+                    "type": "object"
+                },
+                {
+                    "properties": {
+                        "CollectPluginsOfLibrary": {
+                            "properties": {
+                                "inputT": {
+                                    "properties": {
+                                        "excludeSelf": {
+                                            "type": "boolean"
+                                        },
+                                        "lib": {
+                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                                         },
                                         "ocamlBinaries": {
                                             "properties": {
@@ -242,7 +288,10 @@
                                     "type": "object"
                                 },
                                 "outputT": {
-                                    "type": "string"
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "type": "array"
                                 }
                             },
                             "required": [
@@ -253,7 +302,7 @@
                         }
                     },
                     "required": [
-                        "CmxsOfLibrary"
+                        "CollectPluginsOfLibrary"
                     ],
                     "type": "object"
                 },
@@ -263,6 +312,9 @@
                             "properties": {
                                 "inputT": {
                                     "properties": {
+                                        "enableLaxMode": {
+                                            "type": "boolean"
+                                        },
                                         "extractionOptions": {
                                             "properties": {
                                                 "codegenLib": {
@@ -402,7 +454,7 @@
                                         "target": {
                                             "properties": {
                                                 "lib": {
-                                                    "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                                    "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                                                 },
                                                 "opts": {
                                                     "properties": {
@@ -479,6 +531,7 @@
                                         }
                                     },
                                     "required": [
+                                        "ocamlBinaries",
                                         "target",
                                         "verificationBinaries"
                                     ],
@@ -502,12 +555,82 @@
                 },
                 {
                     "properties": {
-                        "IncludePathsOfLibrary": {
+                        "OCamlPluginBuilder": {
+                            "properties": {
+                                "inputT": {
+                                    "properties": {
+                                        "cmxsName": {
+                                            "type": "string"
+                                        },
+                                        "extractionProduct": {
+                                            "type": "string"
+                                        },
+                                        "ocamlBinaries": {
+                                            "properties": {
+                                                "OCAMLPATH": {
+                                                    "type": "string"
+                                                },
+                                                "gcc": {
+                                                    "type": "string"
+                                                },
+                                                "ocamlbin": {
+                                                    "type": "string"
+                                                },
+                                                "ocamlbuild": {
+                                                    "type": "string"
+                                                },
+                                                "ocamlfind": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "OCAMLPATH",
+                                                "gcc",
+                                                "ocamlbin",
+                                                "ocamlbuild",
+                                                "ocamlfind"
+                                            ],
+                                            "type": "object"
+                                        },
+                                        "ocamlPackages": {
+                                            "items": {
+                                                "type": "string"
+                                            },
+                                            "type": "array"
+                                        }
+                                    },
+                                    "required": [
+                                        "cmxsName",
+                                        "extractionProduct",
+                                        "ocamlBinaries",
+                                        "ocamlPackages"
+                                    ],
+                                    "type": "object"
+                                },
+                                "outputT": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "inputT",
+                                "outputT"
+                            ],
+                            "type": "object"
+                        }
+                    },
+                    "required": [
+                        "OCamlPluginBuilder"
+                    ],
+                    "type": "object"
+                },
+                {
+                    "properties": {
+                        "PluginOfLibrary": {
                             "properties": {
                                 "inputT": {
                                     "properties": {
                                         "lib": {
-                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                                         },
                                         "ocamlBinaries": {
                                             "properties": {
@@ -582,80 +705,8 @@
                                     },
                                     "required": [
                                         "lib",
-                                        "verificationBinaries"
-                                    ],
-                                    "type": "object"
-                                },
-                                "outputT": {
-                                    "items": {
-                                        "type": "string"
-                                    },
-                                    "type": "array"
-                                }
-                            },
-                            "required": [
-                                "inputT",
-                                "outputT"
-                            ],
-                            "type": "object"
-                        }
-                    },
-                    "required": [
-                        "IncludePathsOfLibrary"
-                    ],
-                    "type": "object"
-                },
-                {
-                    "properties": {
-                        "OCamlCmxsBuilder": {
-                            "properties": {
-                                "inputT": {
-                                    "properties": {
-                                        "cmxsName": {
-                                            "type": "string"
-                                        },
-                                        "extractionProduct": {
-                                            "type": "string"
-                                        },
-                                        "ocamlBinaries": {
-                                            "properties": {
-                                                "OCAMLPATH": {
-                                                    "type": "string"
-                                                },
-                                                "gcc": {
-                                                    "type": "string"
-                                                },
-                                                "ocamlbin": {
-                                                    "type": "string"
-                                                },
-                                                "ocamlbuild": {
-                                                    "type": "string"
-                                                },
-                                                "ocamlfind": {
-                                                    "type": "string"
-                                                }
-                                            },
-                                            "required": [
-                                                "OCAMLPATH",
-                                                "gcc",
-                                                "ocamlbin",
-                                                "ocamlbuild",
-                                                "ocamlfind"
-                                            ],
-                                            "type": "object"
-                                        },
-                                        "ocamlPackages": {
-                                            "items": {
-                                                "type": "string"
-                                            },
-                                            "type": "array"
-                                        }
-                                    },
-                                    "required": [
-                                        "cmxsName",
-                                        "extractionProduct",
                                         "ocamlBinaries",
-                                        "ocamlPackages"
+                                        "verificationBinaries"
                                     ],
                                     "type": "object"
                                 },
@@ -664,14 +715,13 @@
                                 }
                             },
                             "required": [
-                                "inputT",
-                                "outputT"
+                                "inputT"
                             ],
                             "type": "object"
                         }
                     },
                     "required": [
-                        "OCamlCmxsBuilder"
+                        "PluginOfLibrary"
                     ],
                     "type": "object"
                 },
@@ -765,7 +815,7 @@
                                                         "additionalProperties": {
                                                             "properties": {
                                                                 "lib": {
-                                                                    "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                                                    "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                                                                 },
                                                                 "opts": {
                                                                     "properties": {
@@ -803,7 +853,7 @@
                                                         "type": "string"
                                                     },
                                                     "lib": {
-                                                        "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                                        "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                                                     },
                                                     "license": {
                                                         "type": "string"
@@ -838,99 +888,118 @@
                                         "target": {
                                             "properties": {
                                                 "lib": {
-                                                    "properties": {
-                                                        "dependencies": {
-                                                            "items": {
-                                                                "type": "string"
-                                                            },
-                                                            "type": "array"
-                                                        },
-                                                        "modules": {
-                                                            "items": {
-                                                                "type": "string"
-                                                            },
-                                                            "type": "array"
-                                                        },
-                                                        "verificationBinaries": {
+                                                    "anyOf": [
+                                                        {
                                                             "properties": {
-                                                                "fstar_binary": {
-                                                                    "type": "string"
+                                                                "dependencies": {
+                                                                    "items": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "type": "array"
                                                                 },
-                                                                "z3_binary": {
-                                                                    "type": "string"
-                                                                }
-                                                            },
-                                                            "type": "object"
-                                                        },
-                                                        "verificationOptions": {
-                                                            "properties": {
-                                                                "MLish": {
+                                                                "modules": {
+                                                                    "items": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "type": "array"
+                                                                },
+                                                                "plugin_ocaml_disable": {
                                                                     "type": "boolean"
                                                                 },
-                                                                "fuel": {
+                                                                "plugin_ocaml_modules": {
+                                                                    "items": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "type": "array"
+                                                                },
+                                                                "verificationBinaries": {
                                                                     "properties": {
-                                                                        "initial": {
-                                                                            "type": "integer"
+                                                                        "fstar_binary": {
+                                                                            "type": "string"
                                                                         },
-                                                                        "max": {
-                                                                            "type": "integer"
+                                                                        "z3_binary": {
+                                                                            "type": "string"
                                                                         }
                                                                     },
                                                                     "type": "object"
                                                                 },
-                                                                "ifuel": {
+                                                                "verificationOptions": {
                                                                     "properties": {
-                                                                        "initial": {
+                                                                        "MLish": {
+                                                                            "type": "boolean"
+                                                                        },
+                                                                        "fuel": {
+                                                                            "properties": {
+                                                                                "initial": {
+                                                                                    "type": "integer"
+                                                                                },
+                                                                                "max": {
+                                                                                    "type": "integer"
+                                                                                }
+                                                                            },
+                                                                            "type": "object"
+                                                                        },
+                                                                        "ifuel": {
+                                                                            "properties": {
+                                                                                "initial": {
+                                                                                    "type": "integer"
+                                                                                },
+                                                                                "max": {
+                                                                                    "type": "integer"
+                                                                                }
+                                                                            },
+                                                                            "type": "object"
+                                                                        },
+                                                                        "lax": {
+                                                                            "type": "boolean"
+                                                                        },
+                                                                        "no_default_include": {
+                                                                            "type": "boolean"
+                                                                        },
+                                                                        "no_load_fstartaclib": {
+                                                                            "type": "boolean"
+                                                                        },
+                                                                        "no_smt": {
+                                                                            "type": "boolean"
+                                                                        },
+                                                                        "quake": {
+                                                                            "properties": {
+                                                                                "m": {
+                                                                                    "type": "integer"
+                                                                                },
+                                                                                "n": {
+                                                                                    "type": "integer"
+                                                                                },
+                                                                                "unconditionally": {
+                                                                                    "type": "boolean"
+                                                                                }
+                                                                            },
+                                                                            "required": [
+                                                                                "n"
+                                                                            ],
+                                                                            "type": "object"
+                                                                        },
+                                                                        "retry": {
                                                                             "type": "integer"
                                                                         },
-                                                                        "max": {
-                                                                            "type": "integer"
-                                                                        }
-                                                                    },
-                                                                    "type": "object"
-                                                                },
-                                                                "no_default_include": {
-                                                                    "type": "boolean"
-                                                                },
-                                                                "no_load_fstartaclib": {
-                                                                    "type": "boolean"
-                                                                },
-                                                                "no_smt": {
-                                                                    "type": "boolean"
-                                                                },
-                                                                "quake": {
-                                                                    "properties": {
-                                                                        "m": {
-                                                                            "type": "integer"
-                                                                        },
-                                                                        "n": {
-                                                                            "type": "integer"
-                                                                        },
-                                                                        "unconditionally": {
+                                                                        "unsafe_tactic_exec": {
                                                                             "type": "boolean"
                                                                         }
                                                                     },
-                                                                    "required": [
-                                                                        "n"
-                                                                    ],
                                                                     "type": "object"
-                                                                },
-                                                                "retry": {
-                                                                    "type": "integer"
-                                                                },
-                                                                "unsafe_tactic_exec": {
-                                                                    "type": "boolean"
                                                                 }
                                                             },
+                                                            "required": [
+                                                                "dependencies",
+                                                                "modules",
+                                                                "verificationOptions"
+                                                            ],
                                                             "type": "object"
+                                                        },
+                                                        {
+                                                            "type": "string"
                                                         }
-                                                    },
-                                                    "required": [
-                                                        "dependencies",
-                                                        "modules",
-                                                        "verificationOptions"
-                                                    ],
-                                                    "type": "object"
+                                                    ]
                                                 },
                                                 "opts": {
                                                     "properties": {
@@ -973,7 +1042,7 @@
                                 "outputT": {
                                     "properties": {
                                         "lib": {
-                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                                         },
                                         "opts": {
                                             "properties": {
@@ -1038,6 +1107,15 @@
                                                     },
                                                     "type": "array"
                                                 },
+                                                "plugin_ocaml_disable": {
+                                                    "type": "boolean"
+                                                },
+                                                "plugin_ocaml_modules": {
+                                                    "items": {
+                                                        "type": "string"
+                                                    },
+                                                    "type": "array"
+                                                },
                                                 "verificationBinaries": {
                                                     "properties": {
                                                         "fstar_binary": {
@@ -1075,6 +1153,9 @@
                                                                 }
                                                             },
                                                             "type": "object"
+                                                        },
+                                                        "lax": {
+                                                            "type": "boolean"
                                                         },
                                                         "no_default_include": {
                                                             "type": "boolean"
@@ -1132,7 +1213,7 @@
                                                         "additionalProperties": {
                                                             "properties": {
                                                                 "lib": {
-                                                                    "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                                                    "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                                                                 },
                                                                 "opts": {
                                                                     "properties": {
@@ -1170,7 +1251,7 @@
                                                         "type": "string"
                                                     },
                                                     "lib": {
-                                                        "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                                        "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                                                     },
                                                     "license": {
                                                         "type": "string"
@@ -1211,7 +1292,7 @@
                                     "type": "object"
                                 },
                                 "outputT": {
-                                    "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                    "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                                 }
                             },
                             "required": [
@@ -1245,7 +1326,7 @@
                                                         "additionalProperties": {
                                                             "properties": {
                                                                 "lib": {
-                                                                    "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                                                    "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                                                                 },
                                                                 "opts": {
                                                                     "properties": {
@@ -1283,7 +1364,7 @@
                                                         "type": "string"
                                                     },
                                                     "lib": {
-                                                        "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                                        "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                                                     },
                                                     "license": {
                                                         "type": "string"
@@ -1324,99 +1405,118 @@
                                                     "additionalProperties": {
                                                         "properties": {
                                                             "lib": {
-                                                                "properties": {
-                                                                    "dependencies": {
-                                                                        "items": {
-                                                                            "type": "string"
-                                                                        },
-                                                                        "type": "array"
-                                                                    },
-                                                                    "modules": {
-                                                                        "items": {
-                                                                            "type": "string"
-                                                                        },
-                                                                        "type": "array"
-                                                                    },
-                                                                    "verificationBinaries": {
+                                                                "anyOf": [
+                                                                    {
                                                                         "properties": {
-                                                                            "fstar_binary": {
-                                                                                "type": "string"
+                                                                            "dependencies": {
+                                                                                "items": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "type": "array"
                                                                             },
-                                                                            "z3_binary": {
-                                                                                "type": "string"
-                                                                            }
-                                                                        },
-                                                                        "type": "object"
-                                                                    },
-                                                                    "verificationOptions": {
-                                                                        "properties": {
-                                                                            "MLish": {
+                                                                            "modules": {
+                                                                                "items": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "type": "array"
+                                                                            },
+                                                                            "plugin_ocaml_disable": {
                                                                                 "type": "boolean"
                                                                             },
-                                                                            "fuel": {
+                                                                            "plugin_ocaml_modules": {
+                                                                                "items": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "type": "array"
+                                                                            },
+                                                                            "verificationBinaries": {
                                                                                 "properties": {
-                                                                                    "initial": {
-                                                                                        "type": "integer"
+                                                                                    "fstar_binary": {
+                                                                                        "type": "string"
                                                                                     },
-                                                                                    "max": {
-                                                                                        "type": "integer"
+                                                                                    "z3_binary": {
+                                                                                        "type": "string"
                                                                                     }
                                                                                 },
                                                                                 "type": "object"
                                                                             },
-                                                                            "ifuel": {
+                                                                            "verificationOptions": {
                                                                                 "properties": {
-                                                                                    "initial": {
+                                                                                    "MLish": {
+                                                                                        "type": "boolean"
+                                                                                    },
+                                                                                    "fuel": {
+                                                                                        "properties": {
+                                                                                            "initial": {
+                                                                                                "type": "integer"
+                                                                                            },
+                                                                                            "max": {
+                                                                                                "type": "integer"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "ifuel": {
+                                                                                        "properties": {
+                                                                                            "initial": {
+                                                                                                "type": "integer"
+                                                                                            },
+                                                                                            "max": {
+                                                                                                "type": "integer"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "lax": {
+                                                                                        "type": "boolean"
+                                                                                    },
+                                                                                    "no_default_include": {
+                                                                                        "type": "boolean"
+                                                                                    },
+                                                                                    "no_load_fstartaclib": {
+                                                                                        "type": "boolean"
+                                                                                    },
+                                                                                    "no_smt": {
+                                                                                        "type": "boolean"
+                                                                                    },
+                                                                                    "quake": {
+                                                                                        "properties": {
+                                                                                            "m": {
+                                                                                                "type": "integer"
+                                                                                            },
+                                                                                            "n": {
+                                                                                                "type": "integer"
+                                                                                            },
+                                                                                            "unconditionally": {
+                                                                                                "type": "boolean"
+                                                                                            }
+                                                                                        },
+                                                                                        "required": [
+                                                                                            "n"
+                                                                                        ],
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "retry": {
                                                                                         "type": "integer"
                                                                                     },
-                                                                                    "max": {
-                                                                                        "type": "integer"
-                                                                                    }
-                                                                                },
-                                                                                "type": "object"
-                                                                            },
-                                                                            "no_default_include": {
-                                                                                "type": "boolean"
-                                                                            },
-                                                                            "no_load_fstartaclib": {
-                                                                                "type": "boolean"
-                                                                            },
-                                                                            "no_smt": {
-                                                                                "type": "boolean"
-                                                                            },
-                                                                            "quake": {
-                                                                                "properties": {
-                                                                                    "m": {
-                                                                                        "type": "integer"
-                                                                                    },
-                                                                                    "n": {
-                                                                                        "type": "integer"
-                                                                                    },
-                                                                                    "unconditionally": {
+                                                                                    "unsafe_tactic_exec": {
                                                                                         "type": "boolean"
                                                                                     }
                                                                                 },
-                                                                                "required": [
-                                                                                    "n"
-                                                                                ],
                                                                                 "type": "object"
-                                                                            },
-                                                                            "retry": {
-                                                                                "type": "integer"
-                                                                            },
-                                                                            "unsafe_tactic_exec": {
-                                                                                "type": "boolean"
                                                                             }
                                                                         },
+                                                                        "required": [
+                                                                            "dependencies",
+                                                                            "modules",
+                                                                            "verificationOptions"
+                                                                        ],
                                                                         "type": "object"
+                                                                    },
+                                                                    {
+                                                                        "type": "string"
                                                                     }
-                                                                },
-                                                                "required": [
-                                                                    "dependencies",
-                                                                    "modules",
-                                                                    "verificationOptions"
-                                                                ],
-                                                                "type": "object"
+                                                                ]
                                                             },
                                                             "opts": {
                                                                 "properties": {
@@ -1467,6 +1567,15 @@
                                                             },
                                                             "type": "array"
                                                         },
+                                                        "plugin_ocaml_disable": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "plugin_ocaml_modules": {
+                                                            "items": {
+                                                                "type": "string"
+                                                            },
+                                                            "type": "array"
+                                                        },
                                                         "verificationBinaries": {
                                                             "properties": {
                                                                 "fstar_binary": {
@@ -1504,6 +1613,9 @@
                                                                         }
                                                                     },
                                                                     "type": "object"
+                                                                },
+                                                                "lax": {
+                                                                    "type": "boolean"
                                                                 },
                                                                 "no_default_include": {
                                                                     "type": "boolean"
@@ -1596,7 +1708,7 @@
                                             "additionalProperties": {
                                                 "properties": {
                                                     "lib": {
-                                                        "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                                        "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                                                     },
                                                     "opts": {
                                                         "properties": {
@@ -1634,7 +1746,7 @@
                                             "type": "string"
                                         },
                                         "lib": {
-                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                                         },
                                         "license": {
                                             "type": "string"
@@ -1682,27 +1794,34 @@
                                     "properties": {
                                         "packageSet": {
                                             "additionalProperties": {
-                                                "properties": {
-                                                    "gitUri": {
-                                                        "type": "string"
+                                                "anyOf": [
+                                                    {
+                                                        "properties": {
+                                                            "gitUri": {
+                                                                "type": "string"
+                                                            },
+                                                            "ref": {
+                                                                "type": "string"
+                                                            },
+                                                            "rev": {
+                                                                "type": "string"
+                                                            },
+                                                            "subpath": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "gitUri",
+                                                            "ref",
+                                                            "rev",
+                                                            "subpath"
+                                                        ],
+                                                        "type": "object"
                                                     },
-                                                    "ref": {
-                                                        "type": "string"
-                                                    },
-                                                    "rev": {
-                                                        "type": "string"
-                                                    },
-                                                    "subpath": {
+                                                    {
                                                         "type": "string"
                                                     }
-                                                },
-                                                "required": [
-                                                    "gitUri",
-                                                    "ref",
-                                                    "rev",
-                                                    "subpath"
-                                                ],
-                                                "type": "object"
+                                                ]
                                             },
                                             "type": "object"
                                         },
@@ -1732,7 +1851,7 @@
                                                 "additionalProperties": {
                                                     "properties": {
                                                         "lib": {
-                                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                                                         },
                                                         "opts": {
                                                             "properties": {
@@ -1770,7 +1889,7 @@
                                                 "type": "string"
                                             },
                                             "lib": {
-                                                "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                                "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                                             },
                                             "license": {
                                                 "type": "string"
@@ -1819,7 +1938,7 @@
                                 "inputT": {
                                     "properties": {
                                         "lib": {
-                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                                         },
                                         "ocamlBinaries": {
                                             "properties": {
@@ -1894,6 +2013,7 @@
                                     },
                                     "required": [
                                         "lib",
+                                        "ocamlBinaries",
                                         "verificationBinaries"
                                     ],
                                     "type": "object"
@@ -2008,6 +2128,9 @@
                                                     },
                                                     "type": "object"
                                                 },
+                                                "lax": {
+                                                    "type": "boolean"
+                                                },
                                                 "no_default_include": {
                                                     "type": "boolean"
                                                 },
@@ -2075,10 +2198,13 @@
             "anyOf": [
                 {
                     "properties": {
-                        "CmxsFilesOfLibrary": {
+                        "CollectCheckedOfLibrary": {
                             "properties": {
+                                "excludeSelf": {
+                                    "type": "boolean"
+                                },
                                 "lib": {
-                                    "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                    "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                                 },
                                 "ocamlBinaries": {
                                     "properties": {
@@ -2160,16 +2286,41 @@
                         }
                     },
                     "required": [
-                        "CmxsFilesOfLibrary"
+                        "CollectCheckedOfLibrary"
                     ],
                     "type": "object"
                 },
                 {
                     "properties": {
-                        "CmxsOfLibrary": {
+                        "CollectModulesOfLibrary": {
                             "properties": {
+                                "excludeSelf": {
+                                    "type": "boolean"
+                                },
                                 "lib": {
-                                    "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                    "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
+                                }
+                            },
+                            "required": [
+                                "lib"
+                            ],
+                            "type": "object"
+                        }
+                    },
+                    "required": [
+                        "CollectModulesOfLibrary"
+                    ],
+                    "type": "object"
+                },
+                {
+                    "properties": {
+                        "CollectPluginsOfLibrary": {
+                            "properties": {
+                                "excludeSelf": {
+                                    "type": "boolean"
+                                },
+                                "lib": {
+                                    "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                                 },
                                 "ocamlBinaries": {
                                     "properties": {
@@ -2251,7 +2402,7 @@
                         }
                     },
                     "required": [
-                        "CmxsOfLibrary"
+                        "CollectPluginsOfLibrary"
                     ],
                     "type": "object"
                 },
@@ -2259,6 +2410,9 @@
                     "properties": {
                         "ExtractModules": {
                             "properties": {
+                                "enableLaxMode": {
+                                    "type": "boolean"
+                                },
                                 "extractionOptions": {
                                     "properties": {
                                         "codegenLib": {
@@ -2386,7 +2540,7 @@
                                 "target": {
                                     "properties": {
                                         "lib": {
-                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                                         },
                                         "opts": {
                                             "properties": {
@@ -2463,6 +2617,7 @@
                                 }
                             },
                             "required": [
+                                "ocamlBinaries",
                                 "target",
                                 "verificationBinaries"
                             ],
@@ -2476,10 +2631,68 @@
                 },
                 {
                     "properties": {
-                        "IncludePathsOfLibrary": {
+                        "OCamlPluginBuilder": {
+                            "properties": {
+                                "cmxsName": {
+                                    "type": "string"
+                                },
+                                "extractionProduct": {
+                                    "type": "string"
+                                },
+                                "ocamlBinaries": {
+                                    "properties": {
+                                        "OCAMLPATH": {
+                                            "type": "string"
+                                        },
+                                        "gcc": {
+                                            "type": "string"
+                                        },
+                                        "ocamlbin": {
+                                            "type": "string"
+                                        },
+                                        "ocamlbuild": {
+                                            "type": "string"
+                                        },
+                                        "ocamlfind": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "OCAMLPATH",
+                                        "gcc",
+                                        "ocamlbin",
+                                        "ocamlbuild",
+                                        "ocamlfind"
+                                    ],
+                                    "type": "object"
+                                },
+                                "ocamlPackages": {
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "type": "array"
+                                }
+                            },
+                            "required": [
+                                "cmxsName",
+                                "extractionProduct",
+                                "ocamlBinaries",
+                                "ocamlPackages"
+                            ],
+                            "type": "object"
+                        }
+                    },
+                    "required": [
+                        "OCamlPluginBuilder"
+                    ],
+                    "type": "object"
+                },
+                {
+                    "properties": {
+                        "PluginOfLibrary": {
                             "properties": {
                                 "lib": {
-                                    "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                    "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                                 },
                                 "ocamlBinaries": {
                                     "properties": {
@@ -2554,71 +2767,14 @@
                             },
                             "required": [
                                 "lib",
+                                "ocamlBinaries",
                                 "verificationBinaries"
                             ],
                             "type": "object"
                         }
                     },
                     "required": [
-                        "IncludePathsOfLibrary"
-                    ],
-                    "type": "object"
-                },
-                {
-                    "properties": {
-                        "OCamlCmxsBuilder": {
-                            "properties": {
-                                "cmxsName": {
-                                    "type": "string"
-                                },
-                                "extractionProduct": {
-                                    "type": "string"
-                                },
-                                "ocamlBinaries": {
-                                    "properties": {
-                                        "OCAMLPATH": {
-                                            "type": "string"
-                                        },
-                                        "gcc": {
-                                            "type": "string"
-                                        },
-                                        "ocamlbin": {
-                                            "type": "string"
-                                        },
-                                        "ocamlbuild": {
-                                            "type": "string"
-                                        },
-                                        "ocamlfind": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "OCAMLPATH",
-                                        "gcc",
-                                        "ocamlbin",
-                                        "ocamlbuild",
-                                        "ocamlfind"
-                                    ],
-                                    "type": "object"
-                                },
-                                "ocamlPackages": {
-                                    "items": {
-                                        "type": "string"
-                                    },
-                                    "type": "array"
-                                }
-                            },
-                            "required": [
-                                "cmxsName",
-                                "extractionProduct",
-                                "ocamlBinaries",
-                                "ocamlPackages"
-                            ],
-                            "type": "object"
-                        }
-                    },
-                    "required": [
-                        "OCamlCmxsBuilder"
+                        "PluginOfLibrary"
                     ],
                     "type": "object"
                 },
@@ -2658,7 +2814,7 @@
                                                 "additionalProperties": {
                                                     "properties": {
                                                         "lib": {
-                                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                                                         },
                                                         "opts": {
                                                             "properties": {
@@ -2696,7 +2852,7 @@
                                                 "type": "string"
                                             },
                                             "lib": {
-                                                "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                                "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                                             },
                                             "license": {
                                                 "type": "string"
@@ -2731,99 +2887,118 @@
                                 "target": {
                                     "properties": {
                                         "lib": {
-                                            "properties": {
-                                                "dependencies": {
-                                                    "items": {
-                                                        "type": "string"
-                                                    },
-                                                    "type": "array"
-                                                },
-                                                "modules": {
-                                                    "items": {
-                                                        "type": "string"
-                                                    },
-                                                    "type": "array"
-                                                },
-                                                "verificationBinaries": {
+                                            "anyOf": [
+                                                {
                                                     "properties": {
-                                                        "fstar_binary": {
-                                                            "type": "string"
+                                                        "dependencies": {
+                                                            "items": {
+                                                                "type": "string"
+                                                            },
+                                                            "type": "array"
                                                         },
-                                                        "z3_binary": {
-                                                            "type": "string"
-                                                        }
-                                                    },
-                                                    "type": "object"
-                                                },
-                                                "verificationOptions": {
-                                                    "properties": {
-                                                        "MLish": {
+                                                        "modules": {
+                                                            "items": {
+                                                                "type": "string"
+                                                            },
+                                                            "type": "array"
+                                                        },
+                                                        "plugin_ocaml_disable": {
                                                             "type": "boolean"
                                                         },
-                                                        "fuel": {
+                                                        "plugin_ocaml_modules": {
+                                                            "items": {
+                                                                "type": "string"
+                                                            },
+                                                            "type": "array"
+                                                        },
+                                                        "verificationBinaries": {
                                                             "properties": {
-                                                                "initial": {
-                                                                    "type": "integer"
+                                                                "fstar_binary": {
+                                                                    "type": "string"
                                                                 },
-                                                                "max": {
-                                                                    "type": "integer"
+                                                                "z3_binary": {
+                                                                    "type": "string"
                                                                 }
                                                             },
                                                             "type": "object"
                                                         },
-                                                        "ifuel": {
+                                                        "verificationOptions": {
                                                             "properties": {
-                                                                "initial": {
+                                                                "MLish": {
+                                                                    "type": "boolean"
+                                                                },
+                                                                "fuel": {
+                                                                    "properties": {
+                                                                        "initial": {
+                                                                            "type": "integer"
+                                                                        },
+                                                                        "max": {
+                                                                            "type": "integer"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                },
+                                                                "ifuel": {
+                                                                    "properties": {
+                                                                        "initial": {
+                                                                            "type": "integer"
+                                                                        },
+                                                                        "max": {
+                                                                            "type": "integer"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                },
+                                                                "lax": {
+                                                                    "type": "boolean"
+                                                                },
+                                                                "no_default_include": {
+                                                                    "type": "boolean"
+                                                                },
+                                                                "no_load_fstartaclib": {
+                                                                    "type": "boolean"
+                                                                },
+                                                                "no_smt": {
+                                                                    "type": "boolean"
+                                                                },
+                                                                "quake": {
+                                                                    "properties": {
+                                                                        "m": {
+                                                                            "type": "integer"
+                                                                        },
+                                                                        "n": {
+                                                                            "type": "integer"
+                                                                        },
+                                                                        "unconditionally": {
+                                                                            "type": "boolean"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "n"
+                                                                    ],
+                                                                    "type": "object"
+                                                                },
+                                                                "retry": {
                                                                     "type": "integer"
                                                                 },
-                                                                "max": {
-                                                                    "type": "integer"
-                                                                }
-                                                            },
-                                                            "type": "object"
-                                                        },
-                                                        "no_default_include": {
-                                                            "type": "boolean"
-                                                        },
-                                                        "no_load_fstartaclib": {
-                                                            "type": "boolean"
-                                                        },
-                                                        "no_smt": {
-                                                            "type": "boolean"
-                                                        },
-                                                        "quake": {
-                                                            "properties": {
-                                                                "m": {
-                                                                    "type": "integer"
-                                                                },
-                                                                "n": {
-                                                                    "type": "integer"
-                                                                },
-                                                                "unconditionally": {
+                                                                "unsafe_tactic_exec": {
                                                                     "type": "boolean"
                                                                 }
                                                             },
-                                                            "required": [
-                                                                "n"
-                                                            ],
                                                             "type": "object"
-                                                        },
-                                                        "retry": {
-                                                            "type": "integer"
-                                                        },
-                                                        "unsafe_tactic_exec": {
-                                                            "type": "boolean"
                                                         }
                                                     },
+                                                    "required": [
+                                                        "dependencies",
+                                                        "modules",
+                                                        "verificationOptions"
+                                                    ],
                                                     "type": "object"
+                                                },
+                                                {
+                                                    "type": "string"
                                                 }
-                                            },
-                                            "required": [
-                                                "dependencies",
-                                                "modules",
-                                                "verificationOptions"
-                                            ],
-                                            "type": "object"
+                                            ]
                                         },
                                         "opts": {
                                             "properties": {
@@ -2887,6 +3062,15 @@
                                             },
                                             "type": "array"
                                         },
+                                        "plugin_ocaml_disable": {
+                                            "type": "boolean"
+                                        },
+                                        "plugin_ocaml_modules": {
+                                            "items": {
+                                                "type": "string"
+                                            },
+                                            "type": "array"
+                                        },
                                         "verificationBinaries": {
                                             "properties": {
                                                 "fstar_binary": {
@@ -2924,6 +3108,9 @@
                                                         }
                                                     },
                                                     "type": "object"
+                                                },
+                                                "lax": {
+                                                    "type": "boolean"
                                                 },
                                                 "no_default_include": {
                                                     "type": "boolean"
@@ -2981,7 +3168,7 @@
                                                 "additionalProperties": {
                                                     "properties": {
                                                         "lib": {
-                                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                                                         },
                                                         "opts": {
                                                             "properties": {
@@ -3019,7 +3206,7 @@
                                                 "type": "string"
                                             },
                                             "lib": {
-                                                "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                                "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                                             },
                                             "license": {
                                                 "type": "string"
@@ -3082,7 +3269,7 @@
                                                 "additionalProperties": {
                                                     "properties": {
                                                         "lib": {
-                                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                                                         },
                                                         "opts": {
                                                             "properties": {
@@ -3120,7 +3307,7 @@
                                                 "type": "string"
                                             },
                                             "lib": {
-                                                "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                                "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                                             },
                                             "license": {
                                                 "type": "string"
@@ -3161,99 +3348,118 @@
                                             "additionalProperties": {
                                                 "properties": {
                                                     "lib": {
-                                                        "properties": {
-                                                            "dependencies": {
-                                                                "items": {
-                                                                    "type": "string"
-                                                                },
-                                                                "type": "array"
-                                                            },
-                                                            "modules": {
-                                                                "items": {
-                                                                    "type": "string"
-                                                                },
-                                                                "type": "array"
-                                                            },
-                                                            "verificationBinaries": {
+                                                        "anyOf": [
+                                                            {
                                                                 "properties": {
-                                                                    "fstar_binary": {
-                                                                        "type": "string"
+                                                                    "dependencies": {
+                                                                        "items": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "type": "array"
                                                                     },
-                                                                    "z3_binary": {
-                                                                        "type": "string"
-                                                                    }
-                                                                },
-                                                                "type": "object"
-                                                            },
-                                                            "verificationOptions": {
-                                                                "properties": {
-                                                                    "MLish": {
+                                                                    "modules": {
+                                                                        "items": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "type": "array"
+                                                                    },
+                                                                    "plugin_ocaml_disable": {
                                                                         "type": "boolean"
                                                                     },
-                                                                    "fuel": {
+                                                                    "plugin_ocaml_modules": {
+                                                                        "items": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "type": "array"
+                                                                    },
+                                                                    "verificationBinaries": {
                                                                         "properties": {
-                                                                            "initial": {
-                                                                                "type": "integer"
+                                                                            "fstar_binary": {
+                                                                                "type": "string"
                                                                             },
-                                                                            "max": {
-                                                                                "type": "integer"
+                                                                            "z3_binary": {
+                                                                                "type": "string"
                                                                             }
                                                                         },
                                                                         "type": "object"
                                                                     },
-                                                                    "ifuel": {
+                                                                    "verificationOptions": {
                                                                         "properties": {
-                                                                            "initial": {
+                                                                            "MLish": {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            "fuel": {
+                                                                                "properties": {
+                                                                                    "initial": {
+                                                                                        "type": "integer"
+                                                                                    },
+                                                                                    "max": {
+                                                                                        "type": "integer"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "ifuel": {
+                                                                                "properties": {
+                                                                                    "initial": {
+                                                                                        "type": "integer"
+                                                                                    },
+                                                                                    "max": {
+                                                                                        "type": "integer"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "lax": {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            "no_default_include": {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            "no_load_fstartaclib": {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            "no_smt": {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            "quake": {
+                                                                                "properties": {
+                                                                                    "m": {
+                                                                                        "type": "integer"
+                                                                                    },
+                                                                                    "n": {
+                                                                                        "type": "integer"
+                                                                                    },
+                                                                                    "unconditionally": {
+                                                                                        "type": "boolean"
+                                                                                    }
+                                                                                },
+                                                                                "required": [
+                                                                                    "n"
+                                                                                ],
+                                                                                "type": "object"
+                                                                            },
+                                                                            "retry": {
                                                                                 "type": "integer"
                                                                             },
-                                                                            "max": {
-                                                                                "type": "integer"
-                                                                            }
-                                                                        },
-                                                                        "type": "object"
-                                                                    },
-                                                                    "no_default_include": {
-                                                                        "type": "boolean"
-                                                                    },
-                                                                    "no_load_fstartaclib": {
-                                                                        "type": "boolean"
-                                                                    },
-                                                                    "no_smt": {
-                                                                        "type": "boolean"
-                                                                    },
-                                                                    "quake": {
-                                                                        "properties": {
-                                                                            "m": {
-                                                                                "type": "integer"
-                                                                            },
-                                                                            "n": {
-                                                                                "type": "integer"
-                                                                            },
-                                                                            "unconditionally": {
+                                                                            "unsafe_tactic_exec": {
                                                                                 "type": "boolean"
                                                                             }
                                                                         },
-                                                                        "required": [
-                                                                            "n"
-                                                                        ],
                                                                         "type": "object"
-                                                                    },
-                                                                    "retry": {
-                                                                        "type": "integer"
-                                                                    },
-                                                                    "unsafe_tactic_exec": {
-                                                                        "type": "boolean"
                                                                     }
                                                                 },
+                                                                "required": [
+                                                                    "dependencies",
+                                                                    "modules",
+                                                                    "verificationOptions"
+                                                                ],
                                                                 "type": "object"
+                                                            },
+                                                            {
+                                                                "type": "string"
                                                             }
-                                                        },
-                                                        "required": [
-                                                            "dependencies",
-                                                            "modules",
-                                                            "verificationOptions"
-                                                        ],
-                                                        "type": "object"
+                                                        ]
                                                     },
                                                     "opts": {
                                                         "properties": {
@@ -3304,6 +3510,15 @@
                                                     },
                                                     "type": "array"
                                                 },
+                                                "plugin_ocaml_disable": {
+                                                    "type": "boolean"
+                                                },
+                                                "plugin_ocaml_modules": {
+                                                    "items": {
+                                                        "type": "string"
+                                                    },
+                                                    "type": "array"
+                                                },
                                                 "verificationBinaries": {
                                                     "properties": {
                                                         "fstar_binary": {
@@ -3341,6 +3556,9 @@
                                                                 }
                                                             },
                                                             "type": "object"
+                                                        },
+                                                        "lax": {
+                                                            "type": "boolean"
                                                         },
                                                         "no_default_include": {
                                                             "type": "boolean"
@@ -3433,27 +3651,34 @@
                             "properties": {
                                 "packageSet": {
                                     "additionalProperties": {
-                                        "properties": {
-                                            "gitUri": {
-                                                "type": "string"
+                                        "anyOf": [
+                                            {
+                                                "properties": {
+                                                    "gitUri": {
+                                                        "type": "string"
+                                                    },
+                                                    "ref": {
+                                                        "type": "string"
+                                                    },
+                                                    "rev": {
+                                                        "type": "string"
+                                                    },
+                                                    "subpath": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "gitUri",
+                                                    "ref",
+                                                    "rev",
+                                                    "subpath"
+                                                ],
+                                                "type": "object"
                                             },
-                                            "ref": {
-                                                "type": "string"
-                                            },
-                                            "rev": {
-                                                "type": "string"
-                                            },
-                                            "subpath": {
+                                            {
                                                 "type": "string"
                                             }
-                                        },
-                                        "required": [
-                                            "gitUri",
-                                            "ref",
-                                            "rev",
-                                            "subpath"
-                                        ],
-                                        "type": "object"
+                                        ]
                                     },
                                     "type": "object"
                                 },
@@ -3481,7 +3706,7 @@
                         "VerifyLibrary": {
                             "properties": {
                                 "lib": {
-                                    "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                    "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                                 },
                                 "ocamlBinaries": {
                                     "properties": {
@@ -3556,6 +3781,7 @@
                             },
                             "required": [
                                 "lib",
+                                "ocamlBinaries",
                                 "verificationBinaries"
                             ],
                             "type": "object"
@@ -3658,6 +3884,9 @@
                                             },
                                             "type": "object"
                                         },
+                                        "lax": {
+                                            "type": "boolean"
+                                        },
                                         "no_default_include": {
                                             "type": "boolean"
                                         },
@@ -3714,9 +3943,6 @@
         "checkedFiles": {
             "type": "string"
         },
-        "cmxsFile": {
-            "type": "string"
-        },
         "emailAddress": {
             "type": "string"
         },
@@ -3751,7 +3977,7 @@
                 "Resolved": {
                     "properties": {
                         "lib": {
-                            "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                            "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                         },
                         "opts": {
                             "properties": {
@@ -3786,99 +4012,118 @@
                 "Unresolved": {
                     "properties": {
                         "lib": {
-                            "properties": {
-                                "dependencies": {
-                                    "items": {
-                                        "type": "string"
-                                    },
-                                    "type": "array"
-                                },
-                                "modules": {
-                                    "items": {
-                                        "type": "string"
-                                    },
-                                    "type": "array"
-                                },
-                                "verificationBinaries": {
+                            "anyOf": [
+                                {
                                     "properties": {
-                                        "fstar_binary": {
-                                            "type": "string"
+                                        "dependencies": {
+                                            "items": {
+                                                "type": "string"
+                                            },
+                                            "type": "array"
                                         },
-                                        "z3_binary": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "type": "object"
-                                },
-                                "verificationOptions": {
-                                    "properties": {
-                                        "MLish": {
+                                        "modules": {
+                                            "items": {
+                                                "type": "string"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "plugin_ocaml_disable": {
                                             "type": "boolean"
                                         },
-                                        "fuel": {
+                                        "plugin_ocaml_modules": {
+                                            "items": {
+                                                "type": "string"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "verificationBinaries": {
                                             "properties": {
-                                                "initial": {
-                                                    "type": "integer"
+                                                "fstar_binary": {
+                                                    "type": "string"
                                                 },
-                                                "max": {
-                                                    "type": "integer"
+                                                "z3_binary": {
+                                                    "type": "string"
                                                 }
                                             },
                                             "type": "object"
                                         },
-                                        "ifuel": {
+                                        "verificationOptions": {
                                             "properties": {
-                                                "initial": {
+                                                "MLish": {
+                                                    "type": "boolean"
+                                                },
+                                                "fuel": {
+                                                    "properties": {
+                                                        "initial": {
+                                                            "type": "integer"
+                                                        },
+                                                        "max": {
+                                                            "type": "integer"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "ifuel": {
+                                                    "properties": {
+                                                        "initial": {
+                                                            "type": "integer"
+                                                        },
+                                                        "max": {
+                                                            "type": "integer"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "lax": {
+                                                    "type": "boolean"
+                                                },
+                                                "no_default_include": {
+                                                    "type": "boolean"
+                                                },
+                                                "no_load_fstartaclib": {
+                                                    "type": "boolean"
+                                                },
+                                                "no_smt": {
+                                                    "type": "boolean"
+                                                },
+                                                "quake": {
+                                                    "properties": {
+                                                        "m": {
+                                                            "type": "integer"
+                                                        },
+                                                        "n": {
+                                                            "type": "integer"
+                                                        },
+                                                        "unconditionally": {
+                                                            "type": "boolean"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "n"
+                                                    ],
+                                                    "type": "object"
+                                                },
+                                                "retry": {
                                                     "type": "integer"
                                                 },
-                                                "max": {
-                                                    "type": "integer"
-                                                }
-                                            },
-                                            "type": "object"
-                                        },
-                                        "no_default_include": {
-                                            "type": "boolean"
-                                        },
-                                        "no_load_fstartaclib": {
-                                            "type": "boolean"
-                                        },
-                                        "no_smt": {
-                                            "type": "boolean"
-                                        },
-                                        "quake": {
-                                            "properties": {
-                                                "m": {
-                                                    "type": "integer"
-                                                },
-                                                "n": {
-                                                    "type": "integer"
-                                                },
-                                                "unconditionally": {
+                                                "unsafe_tactic_exec": {
                                                     "type": "boolean"
                                                 }
                                             },
-                                            "required": [
-                                                "n"
-                                            ],
                                             "type": "object"
-                                        },
-                                        "retry": {
-                                            "type": "integer"
-                                        },
-                                        "unsafe_tactic_exec": {
-                                            "type": "boolean"
                                         }
                                     },
+                                    "required": [
+                                        "dependencies",
+                                        "modules",
+                                        "verificationOptions"
+                                    ],
                                     "type": "object"
+                                },
+                                {
+                                    "type": "string"
                                 }
-                            },
-                            "required": [
-                                "dependencies",
-                                "modules",
-                                "verificationOptions"
-                            ],
-                            "type": "object"
+                            ]
                         },
                         "opts": {
                             "properties": {
@@ -3969,7 +4214,7 @@
         "library": {
             "properties": {
                 "Resolved": {
-                    "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                    "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                 },
                 "Unresolved": {
                     "properties": {
@@ -3980,6 +4225,15 @@
                             "type": "array"
                         },
                         "modules": {
+                            "items": {
+                                "type": "string"
+                            },
+                            "type": "array"
+                        },
+                        "plugin_ocaml_disable": {
+                            "type": "boolean"
+                        },
+                        "plugin_ocaml_modules": {
                             "items": {
                                 "type": "string"
                             },
@@ -4022,6 +4276,9 @@
                                         }
                                     },
                                     "type": "object"
+                                },
+                                "lax": {
+                                    "type": "boolean"
                                 },
                                 "no_default_include": {
                                     "type": "boolean"
@@ -4118,6 +4375,36 @@
         "packageName": {
             "type": "string"
         },
+        "packageReference": {
+            "anyOf": [
+                {
+                    "properties": {
+                        "gitUri": {
+                            "type": "string"
+                        },
+                        "ref": {
+                            "type": "string"
+                        },
+                        "rev": {
+                            "type": "string"
+                        },
+                        "subpath": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "gitUri",
+                        "ref",
+                        "rev",
+                        "subpath"
+                    ],
+                    "type": "object"
+                },
+                {
+                    "type": "string"
+                }
+            ]
+        },
         "packageSet": {
             "properties": {
                 "Resolved": {
@@ -4133,7 +4420,7 @@
                                 "additionalProperties": {
                                     "properties": {
                                         "lib": {
-                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                            "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                                         },
                                         "opts": {
                                             "properties": {
@@ -4171,7 +4458,7 @@
                                 "type": "string"
                             },
                             "lib": {
-                                "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                             },
                             "license": {
                                 "type": "string"
@@ -4202,27 +4489,34 @@
                 },
                 "Unresolved": {
                     "additionalProperties": {
-                        "properties": {
-                            "gitUri": {
-                                "type": "string"
+                        "anyOf": [
+                            {
+                                "properties": {
+                                    "gitUri": {
+                                        "type": "string"
+                                    },
+                                    "ref": {
+                                        "type": "string"
+                                    },
+                                    "rev": {
+                                        "type": "string"
+                                    },
+                                    "subpath": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "gitUri",
+                                    "ref",
+                                    "rev",
+                                    "subpath"
+                                ],
+                                "type": "object"
                             },
-                            "ref": {
-                                "type": "string"
-                            },
-                            "rev": {
-                                "type": "string"
-                            },
-                            "subpath": {
+                            {
                                 "type": "string"
                             }
-                        },
-                        "required": [
-                            "gitUri",
-                            "ref",
-                            "rev",
-                            "subpath"
-                        ],
-                        "type": "object"
+                        ]
                     },
                     "type": "object"
                 }
@@ -4247,7 +4541,7 @@
                             "additionalProperties": {
                                 "properties": {
                                     "lib": {
-                                        "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                                        "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                                     },
                                     "opts": {
                                         "properties": {
@@ -4285,7 +4579,7 @@
                             "type": "string"
                         },
                         "lib": {
-                            "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                            "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                         },
                         "license": {
                             "type": "string"
@@ -4324,99 +4618,118 @@
                             "additionalProperties": {
                                 "properties": {
                                     "lib": {
-                                        "properties": {
-                                            "dependencies": {
-                                                "items": {
-                                                    "type": "string"
-                                                },
-                                                "type": "array"
-                                            },
-                                            "modules": {
-                                                "items": {
-                                                    "type": "string"
-                                                },
-                                                "type": "array"
-                                            },
-                                            "verificationBinaries": {
+                                        "anyOf": [
+                                            {
                                                 "properties": {
-                                                    "fstar_binary": {
-                                                        "type": "string"
+                                                    "dependencies": {
+                                                        "items": {
+                                                            "type": "string"
+                                                        },
+                                                        "type": "array"
                                                     },
-                                                    "z3_binary": {
-                                                        "type": "string"
-                                                    }
-                                                },
-                                                "type": "object"
-                                            },
-                                            "verificationOptions": {
-                                                "properties": {
-                                                    "MLish": {
+                                                    "modules": {
+                                                        "items": {
+                                                            "type": "string"
+                                                        },
+                                                        "type": "array"
+                                                    },
+                                                    "plugin_ocaml_disable": {
                                                         "type": "boolean"
                                                     },
-                                                    "fuel": {
+                                                    "plugin_ocaml_modules": {
+                                                        "items": {
+                                                            "type": "string"
+                                                        },
+                                                        "type": "array"
+                                                    },
+                                                    "verificationBinaries": {
                                                         "properties": {
-                                                            "initial": {
-                                                                "type": "integer"
+                                                            "fstar_binary": {
+                                                                "type": "string"
                                                             },
-                                                            "max": {
-                                                                "type": "integer"
+                                                            "z3_binary": {
+                                                                "type": "string"
                                                             }
                                                         },
                                                         "type": "object"
                                                     },
-                                                    "ifuel": {
+                                                    "verificationOptions": {
                                                         "properties": {
-                                                            "initial": {
+                                                            "MLish": {
+                                                                "type": "boolean"
+                                                            },
+                                                            "fuel": {
+                                                                "properties": {
+                                                                    "initial": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "max": {
+                                                                        "type": "integer"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "ifuel": {
+                                                                "properties": {
+                                                                    "initial": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "max": {
+                                                                        "type": "integer"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "lax": {
+                                                                "type": "boolean"
+                                                            },
+                                                            "no_default_include": {
+                                                                "type": "boolean"
+                                                            },
+                                                            "no_load_fstartaclib": {
+                                                                "type": "boolean"
+                                                            },
+                                                            "no_smt": {
+                                                                "type": "boolean"
+                                                            },
+                                                            "quake": {
+                                                                "properties": {
+                                                                    "m": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "n": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "unconditionally": {
+                                                                        "type": "boolean"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "n"
+                                                                ],
+                                                                "type": "object"
+                                                            },
+                                                            "retry": {
                                                                 "type": "integer"
                                                             },
-                                                            "max": {
-                                                                "type": "integer"
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    },
-                                                    "no_default_include": {
-                                                        "type": "boolean"
-                                                    },
-                                                    "no_load_fstartaclib": {
-                                                        "type": "boolean"
-                                                    },
-                                                    "no_smt": {
-                                                        "type": "boolean"
-                                                    },
-                                                    "quake": {
-                                                        "properties": {
-                                                            "m": {
-                                                                "type": "integer"
-                                                            },
-                                                            "n": {
-                                                                "type": "integer"
-                                                            },
-                                                            "unconditionally": {
+                                                            "unsafe_tactic_exec": {
                                                                 "type": "boolean"
                                                             }
                                                         },
-                                                        "required": [
-                                                            "n"
-                                                        ],
                                                         "type": "object"
-                                                    },
-                                                    "retry": {
-                                                        "type": "integer"
-                                                    },
-                                                    "unsafe_tactic_exec": {
-                                                        "type": "boolean"
                                                     }
                                                 },
+                                                "required": [
+                                                    "dependencies",
+                                                    "modules",
+                                                    "verificationOptions"
+                                                ],
                                                 "type": "object"
+                                            },
+                                            {
+                                                "type": "string"
                                             }
-                                        },
-                                        "required": [
-                                            "dependencies",
-                                            "modules",
-                                            "verificationOptions"
-                                        ],
-                                        "type": "object"
+                                        ]
                                     },
                                     "opts": {
                                         "properties": {
@@ -4467,6 +4780,15 @@
                                     },
                                     "type": "array"
                                 },
+                                "plugin_ocaml_disable": {
+                                    "type": "boolean"
+                                },
+                                "plugin_ocaml_modules": {
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "type": "array"
+                                },
                                 "verificationBinaries": {
                                     "properties": {
                                         "fstar_binary": {
@@ -4504,6 +4826,9 @@
                                                 }
                                             },
                                             "type": "object"
+                                        },
+                                        "lax": {
+                                            "type": "boolean"
                                         },
                                         "no_default_include": {
                                             "type": "boolean"
@@ -4680,6 +5005,9 @@
                     },
                     "type": "object"
                 },
+                "lax": {
+                    "type": "boolean"
+                },
                 "no_default_include": {
                     "type": "boolean"
                 },
@@ -4715,15 +5043,24 @@
             },
             "type": "object"
         },
-        "{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}": {
+        "{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}": {
             "properties": {
                 "dependencies": {
                     "items": {
-                        "$ref": "#/definitions/{dependencies:any[];modules:string[];verificationOptions:verificationOptions;}"
+                        "$ref": "#/definitions/{dependencies:any[];modules:string[];plugin_ocaml_disable?:boolean;plugin_ocaml_modules?:string[];verificationOptions:verificationOptions;}"
                     },
                     "type": "array"
                 },
                 "modules": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "plugin_ocaml_disable": {
+                    "type": "boolean"
+                },
+                "plugin_ocaml_modules": {
                     "items": {
                         "type": "string"
                     },
@@ -4755,6 +5092,9 @@
                                 }
                             },
                             "type": "object"
+                        },
+                        "lax": {
+                            "type": "boolean"
                         },
                         "no_default_include": {
                             "type": "boolean"

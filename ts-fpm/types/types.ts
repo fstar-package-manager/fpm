@@ -3,7 +3,6 @@ export let Unresolved = "Unresolved";
 export type absolutePath = string;
 export type absolutePathToDir = string;
 export type checkedFiles = absolutePathToDir;
-export type cmxsFile = absolutePath;
 export type emailAddress = string;
 export type extractionOptions = {
   codegenLib?: namespaceT[];
@@ -14,7 +13,10 @@ export type extractionOptions = {
 export type extractionProduct = absolutePathToDir;
 export type extractionTarget = {
   Resolved: { lib: library["Resolved"]; opts: extractionOptions };
-  Unresolved: { lib: library["Unresolved"]; opts: extractionOptions };
+  Unresolved: {
+    lib: packageName | library["Unresolved"];
+    opts: extractionOptions;
+  };
 };
 export type fstarModule = absolutePath;
 export type fuel = { initial?: nat; max?: nat };
@@ -30,11 +32,15 @@ export type library = {
   Resolved: {
     dependencies: library["Resolved"][];
     modules: absolutePath[];
+    plugin_ocaml_disable?: boolean;
+    plugin_ocaml_modules?: absolutePath[];
     verificationOptions: verificationOptions;
   };
   Unresolved: {
     dependencies: packageName[];
     modules: relativePath[];
+    plugin_ocaml_disable?: boolean;
+    plugin_ocaml_modules?: relativePath[];
     verificationBinaries?: verificationBinaries["Unresolved"];
     verificationOptions: verificationOptions;
   };
@@ -52,9 +58,10 @@ export type ocamlBinaries = {
 export type ocamlPackage = absolutePathToDir;
 export type ocamlPackagePlugin = extractionProduct;
 export type packageName = string;
+export type packageReference = gitReference | relativePath;
 export type packageSet = {
   Resolved: { [key: string]: packageT["Resolved"] };
-  Unresolved: { [key: string]: gitReference };
+  Unresolved: { [key: string]: packageReference };
 };
 export type packageT = {
   Resolved: {
@@ -96,6 +103,7 @@ export type verificationOptions = {
   MLish?: boolean;
   fuel?: fuel;
   ifuel?: fuel;
+  lax?: boolean;
   no_default_include?: boolean;
   no_load_fstartaclib?: boolean;
   no_smt?: boolean;

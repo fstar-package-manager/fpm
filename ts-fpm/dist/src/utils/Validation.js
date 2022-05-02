@@ -58,7 +58,4 @@ exports.validators = {
 };
 // let pathOfApiInputT = (name: string) =>
 //     `${schemaDefinition.definitions.api.anyOf.findIndex(o => name in o.properties)}`
-// console.log(
-//     schemaDefinition.definitions.api.anyOf[0].properties.ExtractTarget
-// );
 //# sourceMappingURL=Validation.js.map

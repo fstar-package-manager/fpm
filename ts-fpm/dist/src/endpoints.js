@@ -3,45 +3,51 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.jsonCli = exports.call = void 0;
 const All_1 = require("./library-level/All");
 const ExtractModules_1 = require("./module-level/ExtractModules");
-const OCamlCmxsBuilder_1 = require("./module-level/OCamlCmxsBuilder");
+const OCamlPluginBuilder_1 = require("./module-level/OCamlPluginBuilder");
 const VerifyModules_1 = require("./module-level/VerifyModules");
 const ResolvePackageSet_1 = require("./package-level/ResolvePackageSet");
 const Validation_1 = require("./utils/Validation");
 const Utils_1 = require("./utils/Utils");
-let mkEndpoints = (config) => ({
-    CmxsFilesOfLibrary: (0, All_1.CmxsFilesOfLibrary)(config),
-    CmxsOfLibrary: (0, All_1.CmxsOfLibrary)(config),
-    ExtractModules: ExtractModules_1.ExtractModules,
-    ExtractTarget: (0, All_1.ExtractTarget)(config),
-    IncludePathsOfLibrary: (0, All_1.IncludePathsOfLibrary)(config),
-    OCamlCmxsBuilder: OCamlCmxsBuilder_1.OCamlCmxsBuilder,
+const Log_1 = require("./utils/Log");
+let x = 0;
+let _ = x.oo;
+let mkEndpoints = (config, log) => ({
+    CollectPluginsOfLibrary: (0, All_1.CollectPluginsOfLibrary)(config, log),
+    CollectCheckedOfLibrary: (0, All_1.CollectCheckedOfLibrary)(config, log),
+    CollectModulesOfLibrary: (0, All_1.CollectModulesOfLibrary)(config, log),
+    PluginOfLibrary: (0, All_1.PluginOfLibrary)(config, log),
+    ExtractModules: (0, ExtractModules_1.ExtractModules)(log),
+    ExtractTarget: (0, All_1.ExtractTarget)(config, log),
+    OCamlPluginBuilder: (0, OCamlPluginBuilder_1.OCamlPluginBuilder)(log),
     ResolveBinaries: Utils_1.resolveVerificationBinariesWithEnv,
     ResolveLibrary: ResolvePackageSet_1.ResolveLibrary,
     ResolveExtractionTarget: ResolvePackageSet_1.ResolveExtractionTarget,
     ResolvePackage: ResolvePackageSet_1.ResolvePackage,
-    ResolvePackageSet: (0, ResolvePackageSet_1.ResolvePackageSet)(config),
-    VerifyLibrary: (0, All_1.VerifyLibrary)(config),
-    VerifyModules: VerifyModules_1.VerifyModules,
+    ResolvePackageSet: (0, ResolvePackageSet_1.ResolvePackageSet)(config, log),
+    VerifyLibrary: (0, All_1.VerifyLibrary)(config, log),
+    VerifyModules: (0, VerifyModules_1.VerifyModules)(log),
 });
 const getKeys = (o) => Object.keys(o);
-let call = (config) => (req) => {
-    let endpoints = mkEndpoints(config);
+let call = (config, log) => (req) => {
+    let endpoints = mkEndpoints(config, log);
     if (Object.keys(req).length > 1)
         throw "TODO msg error: only one action per object";
     // TODO? No idea how to write something generic that typechecks
     // (maybe we don't care actually!)
-    if ('CmxsFilesOfLibrary' in req)
-        return endpoints.CmxsFilesOfLibrary(req.CmxsFilesOfLibrary);
-    else if ('CmxsOfLibrary' in req)
-        return endpoints.CmxsOfLibrary(req.CmxsOfLibrary);
+    if ('CollectPluginsOfLibrary' in req)
+        return endpoints.CollectPluginsOfLibrary(req.CollectPluginsOfLibrary);
+    if ('CollectCheckedOfLibrary' in req)
+        return endpoints.CollectCheckedOfLibrary(req.CollectCheckedOfLibrary);
+    if ('CollectModulesOfLibrary' in req)
+        return endpoints.CollectModulesOfLibrary(req.CollectModulesOfLibrary);
+    else if ('PluginOfLibrary' in req)
+        return endpoints.PluginOfLibrary(req.PluginOfLibrary);
     else if ('ExtractModules' in req)
         return endpoints.ExtractModules(req.ExtractModules);
     else if ('ExtractTarget' in req)
         return endpoints.ExtractTarget(req.ExtractTarget);
-    else if ('IncludePathsOfLibrary' in req)
-        return endpoints.IncludePathsOfLibrary(req.IncludePathsOfLibrary);
-    else if ('OCamlCmxsBuilder' in req)
-        return endpoints.OCamlCmxsBuilder(req.OCamlCmxsBuilder);
+    else if ('OCamlPluginBuilder' in req)
+        return endpoints.OCamlPluginBuilder(req.OCamlPluginBuilder);
     else if ('ResolveBinaries' in req)
         return endpoints.ResolveBinaries(req.ResolveBinaries);
     else if ('ResolvePackageSet' in req)
@@ -54,7 +60,7 @@ let call = (config) => (req) => {
         throw "Impossible";
 };
 exports.call = call;
-let jsonCli = (config) => (json) => (0, Validation_1.mapResult)(Validation_1.validators.api(json), x => (0, exports.call)(config)(x), error => {
+let jsonCli = (config) => (json) => (0, Validation_1.mapResult)(Validation_1.validators.api(json), x => (0, exports.call)(config, Log_1.rootLogger)(x), error => {
     console.error("[jsonCli] The given object does not conform to [api] schema.");
     console.error("Input object:");
     console.error(json);

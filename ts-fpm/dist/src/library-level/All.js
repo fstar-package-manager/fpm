@@ -1,116 +1,113 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.VerifyLibrary = exports.CmxsFilesOfLibrary = exports.CmxsOfLibrary = exports.ExtractTarget = exports.IncludePathsOfLibrary = exports.IncludePathsOfLibrary_excludingSelf = void 0;
+exports.CollectPluginsOfLibrary = exports.PluginOfLibrary = exports.ExtractTarget = exports.CollectCheckedOfLibrary = exports.VerifyLibrary = exports.CollectModulesOfLibrary = void 0;
 const VerifyModules_1 = require("../module-level/VerifyModules");
 require("buffer");
 const fs_extra_1 = require("fs-extra");
-const path = __importStar(require("path"));
+const path_1 = require("path");
 const Config_1 = require("../utils/Config");
-const CmxsOfModules_1 = require("../module-level/CmxsOfModules");
 const ExtractModules_1 = require("../module-level/ExtractModules");
-let IncludePathsOfLibrary_excludingSelf = (config) => ({ lib, verificationBinaries, ocamlBinaries }) => __awaiter(void 0, void 0, void 0, function* () {
-    return (yield Promise.all(lib.dependencies.map(lib => (0, exports.IncludePathsOfLibrary)(config)({ lib, verificationBinaries, ocamlBinaries })))).flat();
-});
-exports.IncludePathsOfLibrary_excludingSelf = IncludePathsOfLibrary_excludingSelf;
-let IncludePathsOfLibrary = (config) => ({ lib, verificationBinaries, ocamlBinaries }) => __awaiter(void 0, void 0, void 0, function* () {
-    return [
-        yield ((0, exports.VerifyLibrary)(config)({ lib, verificationBinaries, ocamlBinaries })),
-        ...(ocamlBinaries ? [
-            path.resolve((yield ((0, exports.CmxsOfLibrary)(config)({ lib, verificationBinaries, ocamlBinaries }))) + "/..")
-        ] : []),
-        ...(yield Promise.all(lib.dependencies.map(lib => (0, exports.IncludePathsOfLibrary)(config)({ lib, verificationBinaries, ocamlBinaries })))).flat()
+const OCamlPluginBuilder_1 = require("../module-level/OCamlPluginBuilder");
+const Utils_1 = require("../utils/Utils");
+const FStarCli_1 = require("../utils/FStarCli");
+const MODULE_ISOLATION = true;
+let CollectModulesOfLibrary = (config, log) => async ({ lib, excludeSelf }) => {
+    let modules = [
+        ...(await Promise.all(lib.dependencies.map(lib => (0, exports.CollectModulesOfLibrary)(config, log)({ lib })))).flat(),
+        ...(excludeSelf ? [] : lib.modules)
     ];
-});
-exports.IncludePathsOfLibrary = IncludePathsOfLibrary;
-let ExtractTarget = (config) => ({ target, verificationBinaries, ocamlBinaries }) => __awaiter(void 0, void 0, void 0, function* () {
-    let { lib, opts: extractionOptions } = target;
-    (0, ExtractModules_1.ExtractModules)({
-        verificationBinaries,
-        extractionOptions,
-        includePaths: yield (0, exports.IncludePathsOfLibrary)(config)({
-            verificationBinaries,
-            ocamlBinaries,
-            lib
-        }),
-        modules: lib.modules
-    });
-    return {};
-});
-exports.ExtractTarget = ExtractTarget;
-let CmxsOfLibrary = (config) => ({ lib, verificationBinaries, ocamlBinaries }) => __awaiter(void 0, void 0, void 0, function* () {
-    let { cacheDir: cache, name: cmxsName } = (yield (0, Config_1.computeLibMetadata)(config, lib));
-    yield (0, fs_extra_1.mkdirp)(cache);
-    let plugin_cache_dir = cache + '/plugin';
-    if (!(yield (0, fs_extra_1.pathExists)(plugin_cache_dir))) {
-        let plugin = yield (0, CmxsOfModules_1.CmxsOfModules)({
-            modules: lib.modules,
-            verificationBinaries,
-            includePaths: (yield Promise.all(lib.dependencies.map(lib => (0, exports.IncludePathsOfLibrary)(config)({ lib, verificationBinaries, ocamlBinaries })))).flat(),
-            ocamlBinaries,
-            cmxsName
+    return MODULE_ISOLATION ? await (0, Utils_1.readdir_fullpaths)((await (0, FStarCli_1.gatherFiles)(modules)).path) : modules;
+};
+exports.CollectModulesOfLibrary = CollectModulesOfLibrary;
+let mkCollector = (f) => (config, log) => {
+    let collector = async (opts) => [
+        ...(opts.excludeSelf ? [] : [await f(config, log)(opts)]),
+        ...(await Promise.all(opts.lib.dependencies.map(lib => {
+            return collector(Object.assign(Object.assign({}, opts), { lib, excludeSelf: false }));
+        }))).flat()
+    ].filter((x) => x !== undefined);
+    return collector;
+};
+let cachify = async (log, cache_dir, f) => {
+    if (!await (0, fs_extra_1.pathExists)(cache_dir))
+        await (0, Utils_1.withTempDir)(async (path) => {
+            await f(path);
+            await (0, fs_extra_1.move)(path, cache_dir);
         });
-        yield (0, fs_extra_1.move)(plugin, plugin_cache_dir);
-    }
-    ;
-    return plugin_cache_dir + '/' + cmxsName + '.cmxs';
-});
-exports.CmxsOfLibrary = CmxsOfLibrary;
-let CmxsFilesOfLibrary = (config) => (opts) => __awaiter(void 0, void 0, void 0, function* () {
-    return [
-        yield (0, exports.CmxsOfLibrary)(config)(opts),
-        ...(yield Promise.all(opts.lib.dependencies.map(lib => (0, exports.CmxsFilesOfLibrary)(config)(Object.assign(Object.assign({}, opts), { lib }))))).flat()
-    ];
-});
-exports.CmxsFilesOfLibrary = CmxsFilesOfLibrary;
-let VerifyLibrary = (config) => ({ lib, verificationBinaries, ocamlBinaries }) => __awaiter(void 0, void 0, void 0, function* () {
-    let cache = (yield (0, Config_1.computeLibMetadata)(config, lib)).cacheDir;
-    yield (0, fs_extra_1.mkdirp)(cache);
-    let checked_cache_dir = cache + '/checked';
-    if (!(yield (0, fs_extra_1.pathExists)(checked_cache_dir))) {
-        let includePaths = (yield Promise.all(lib.dependencies.map(lib => (0, exports.IncludePathsOfLibrary)(config)({ lib, verificationBinaries, ocamlBinaries })))).flat();
-        console.log({ lib, includePaths });
-        let checked = yield (0, VerifyModules_1.VerifyModules)({
-            includePaths,
+    return cache_dir;
+};
+let VerifyLibrary = (config, log) => async ({ lib, verificationBinaries, ocamlBinaries }) => {
+    let cache = (await (0, Config_1.computeLibMetadata)(config, lib)).cacheDir;
+    await (0, fs_extra_1.mkdirp)(cache);
+    return await cachify(log, cache + '/checked' + (lib.verificationOptions.lax ? '_lax' : ''), async (path) => {
+        let checked = await (0, exports.CollectCheckedOfLibrary)(config, log)({ lib, verificationBinaries, ocamlBinaries, excludeSelf: true });
+        debugger;
+        await (0, VerifyModules_1.VerifyModules)(log)({
+            includePaths: [
+                ...new Set((await (0, exports.CollectModulesOfLibrary)(config, log)({ lib, excludeSelf: true })).map(d => (0, path_1.dirname)(d))),
+                ...checked,
+            ],
             modules: lib.modules,
-            plugins: ocamlBinaries ? (yield Promise.all(lib.dependencies.map(lib => (0, exports.CmxsFilesOfLibrary)(config)({ lib, verificationBinaries, ocamlBinaries })))).flat() : [],
+            plugins: await (0, exports.CollectPluginsOfLibrary)(config, log)({ lib, verificationBinaries, ocamlBinaries, excludeSelf: true }),
             verificationBinaries,
             verificationOptions: lib.verificationOptions
-        });
-        yield (0, fs_extra_1.move)(checked, checked_cache_dir);
-    }
-    return checked_cache_dir;
-});
+        }, path);
+    });
+};
 exports.VerifyLibrary = VerifyLibrary;
+exports.CollectCheckedOfLibrary = mkCollector(exports.VerifyLibrary);
+let ExtractTarget = (config, log) => async ({ target, verificationBinaries, ocamlBinaries }) => {
+    let { cacheDir: cache } = (await (0, Config_1.computeLibMetadata)(config, target.lib));
+    await (0, fs_extra_1.mkdirp)(cache + '/extractions/');
+    let actualCacheDir = cache + '/extractions/' + (0, Config_1.mkHash)(JSON.stringify(target));
+    return await cachify(log, actualCacheDir, async (path) => {
+        let { lib, opts: extractionOptions } = target;
+        if (target.opts.lang !== "Plugin") {
+            for (let e of await Promise.all(target.lib.dependencies.map(lib => (0, exports.ExtractTarget)(config, log)({ target: { lib, opts: extractionOptions }, verificationBinaries, ocamlBinaries }))))
+                for (let f of await (0, Utils_1.readdir_fullpaths)(e))
+                    await (0, fs_extra_1.symlink)((0, path_1.resolve)(f), (0, path_1.resolve)(path + '/' + (0, path_1.basename)(f)));
+        }
+        await (0, ExtractModules_1.ExtractModules)(log)({
+            verificationBinaries,
+            extractionOptions,
+            includePaths: [
+                ...await (0, exports.CollectCheckedOfLibrary)(config, log)({
+                    verificationBinaries, ocamlBinaries, lib
+                }),
+                ...new Set((await (0, exports.CollectModulesOfLibrary)(config, log)({ lib, excludeSelf: true })).map(d => (0, path_1.dirname)(d))),
+            ],
+            modules: lib.modules,
+            enableLaxMode: lib.verificationOptions.lax
+        }, path);
+    });
+};
+exports.ExtractTarget = ExtractTarget;
+let PluginOfLibrary = (config, log) => async ({ lib, verificationBinaries, ocamlBinaries }) => {
+    if (lib.plugin_ocaml_disable)
+        return;
+    let { cacheDir: cache, name: cmxsName } = (await (0, Config_1.computeLibMetadata)(config, lib));
+    await (0, fs_extra_1.mkdirp)(cache);
+    let extractionProduct = await (0, FStarCli_1.gatherFiles)([
+        // The order is important: [plugin_ocaml_modules] have
+        // precedence over extracted modules
+        ...(lib.plugin_ocaml_modules || []),
+        ...await (0, Utils_1.readdir_fullpaths)(await (0, exports.ExtractTarget)(config, log)({
+            target: { lib, opts: { lang: 'Plugin' } },
+            verificationBinaries, ocamlBinaries
+            // enableLaxMode: lib.verificationOptions.lax
+        }))
+    ], true);
+    let result = await cachify(log, cache + '/plugin', async (path) => {
+        await (0, OCamlPluginBuilder_1.OCamlPluginBuilder)(log)({
+            ocamlBinaries, cmxsName,
+            ocamlPackages: await (0, exports.CollectPluginsOfLibrary)(config, log)({ lib, verificationBinaries, ocamlBinaries, excludeSelf: true }),
+            extractionProduct: extractionProduct.path
+        }, path);
+    });
+    await Promise.all((await (0, Utils_1.readdir_fullpaths)(extractionProduct.path)).map(p => (0, fs_extra_1.unlink)(p)));
+    extractionProduct.cleanup();
+    return result;
+};
+exports.PluginOfLibrary = PluginOfLibrary;
+exports.CollectPluginsOfLibrary = mkCollector(exports.PluginOfLibrary);
 //# sourceMappingURL=All.js.map

@@ -1,23 +1,13 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sort_by_dependencies = exports.transitive_closure = exports.depTree = void 0;
 const path_1 = require("path");
 const tmp_promise_1 = require("tmp-promise");
 const FStarCli_1 = require("./../utils/FStarCli");
-let depTree = (opts, ...modules) => __awaiter(void 0, void 0, void 0, function* () {
-    let [checked_dir, r] = yield (0, tmp_promise_1.withDir)(({ path }) => __awaiter(void 0, void 0, void 0, function* () {
-        return [path, yield (0, FStarCli_1.fstar)(Object.assign(Object.assign({}, opts), { quiet: true }), "--dep", "raw", "--cache_dir", path, "--warn_error", "-321", // TODO: disable?
-            ...modules)];
-    }));
+const Log_1 = require("../utils/Log");
+exports.depTree = (0, Log_1.logCAFn)(Log_1.Level.NOTICE, "Computing dependencies", log => async (opts, ...modules) => {
+    let [checked_dir, r] = await (0, tmp_promise_1.withDir)(async ({ path }) => [path, await (0, FStarCli_1.fstar)("Running F*")(log)(Object.assign(Object.assign({}, opts), { quiet: "quiet" in opts ? opts.quiet : true }), "--dep", "raw", "--cache_dir", path, "--warn_error", "-321", // TODO: disable?
+        ...modules)]);
     let rules = {};
     let raw = r.stdout.toString().split('\n')
         .filter(line => line.trim());
@@ -60,7 +50,6 @@ let depTree = (opts, ...modules) => __awaiter(void 0, void 0, void 0, function* 
     }
     return Object.fromEntries(Object.entries(rules).map(([rule, deps]) => [rule, new Set([...deps].map(([qual, name]) => qual == "FriendImplementation" || qual == "UseImplementation" ? implementations[name] : interfaces[name]))]));
 });
-exports.depTree = depTree;
 let transitive_closure = (f) => {
     let cache = {};
     let rec = (x) => {
@@ -73,9 +62,9 @@ let transitive_closure = (f) => {
     return Object.fromEntries(Object.keys(f).map(x => [x, rec(x)]));
 };
 exports.transitive_closure = transitive_closure;
-let sort_by_dependencies = (opts, ...modules) => __awaiter(void 0, void 0, void 0, function* () {
+let sort_by_dependencies = (log) => async (opts, ...modules) => {
     let sorted = [];
-    let deps = yield (0, exports.depTree)(opts, ...modules);
+    let deps = await ((0, exports.depTree)(log)(opts, ...modules));
     let h = (x) => {
         if (modules.includes(x)) {
             for (let k of deps[x])
@@ -86,6 +75,6 @@ let sort_by_dependencies = (opts, ...modules) => __awaiter(void 0, void 0, void 
     for (let m of modules)
         h(m);
     return sorted;
-});
+};
 exports.sort_by_dependencies = sort_by_dependencies;
 //# sourceMappingURL=DepTree.js.map

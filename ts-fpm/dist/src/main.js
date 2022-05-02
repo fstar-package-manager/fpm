@@ -22,15 +22,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 require("buffer");
 const path = __importStar(require("path"));
@@ -38,6 +29,7 @@ const Config_1 = require("./utils/Config");
 const Utils_1 = require("./utils/Utils");
 const ResolvePackageSet_1 = require("./package-level/ResolvePackageSet");
 const All_1 = require("./library-level/All");
+const Log_1 = require("./utils/Log");
 function readStream(stream, encoding = "utf8") {
     stream.setEncoding(encoding);
     return new Promise((resolve, reject) => {
@@ -88,8 +80,8 @@ let ExtractTarget = "TODO";
 //     } else {
 //     }
 // }
-(() => __awaiter(void 0, void 0, void 0, function* () {
-    let ocamlBins = yield (0, Utils_1.ocamlBinariesOfEnv)();
+(async () => {
+    let ocamlBins = await (0, Utils_1.ocamlBinariesOfEnv)();
     let config = {
         defaultPackageSet: "git@github.com:fstar-package-manager/fstarpkgs.git",
         cachePath: process.cwd() + "/.fpm"
@@ -99,13 +91,13 @@ let ExtractTarget = "TODO";
         throw "[config.cachePath] should be an absolute path.";
     }
     // await prepareCache(config);
-    let unresolved_ps = yield (0, Config_1.getUnresolvedPackageSet)(config);
+    let unresolved_ps = await (0, Config_1.getUnresolvedPackageSet)(config);
     // let { rev, packageSet: unresolved_ps } = await readPackageSet(cachePackageSetPath(config));
-    let ps = yield (0, ResolvePackageSet_1.ResolvePackageSet)(config)({
+    let ps = await (0, ResolvePackageSet_1.ResolvePackageSet)(config, Log_1.rootLogger)({
         packageSet: unresolved_ps,
         packages: ['foo']
     });
-    yield (0, All_1.VerifyLibrary)(config)({
+    await (0, All_1.VerifyLibrary)(config, Log_1.rootLogger)({
         lib: ps['foo'].lib,
         verificationBinaries: { fstar_binary: "fstar.exe", z3_binary: "z3.exe" },
         ocamlBinaries: ocamlBins
@@ -120,6 +112,6 @@ let ExtractTarget = "TODO";
     //     process.exit(1);
     // } else
     //     runRequest(request as any);
-}))();
+})();
 // let test: api.verify_library = {} as any
 //# sourceMappingURL=main.js.map

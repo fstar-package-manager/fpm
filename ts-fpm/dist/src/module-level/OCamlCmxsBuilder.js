@@ -14,12 +14,22 @@ const fs_extra_1 = require("fs-extra");
 const path_1 = require("path");
 const tmp_promise_1 = require("tmp-promise");
 const Utils_1 = require("./../utils/Utils");
-let OCamlCmxsBuilder = ({ ocamlBinaries, ocamlPackages, extractionProduct, cmxsName }, destination) => __awaiter(void 0, void 0, void 0, function* () {
+const Log_1 = require("../utils/Log");
+exports.OCamlCmxsBuilder = (0, Log_1.logCAFn)(Log_1.Level.INFO, ({ cmxsName }) => "Building plugin " + cmxsName, (log) => ({ ocamlBinaries, ocamlPackages, extractionProduct, cmxsName }, destination) => __awaiter(void 0, void 0, void 0, function* () {
     let dest = destination || (yield (0, tmp_promise_1.dir)({ keep: true })).path;
     yield (0, tmp_promise_1.withDir)((d) => __awaiter(void 0, void 0, void 0, function* () {
         let temp_packages_dir = d.path;
-        for (let p of ocamlPackages)
-            yield (0, fs_extra_1.symlink)(p, temp_packages_dir + '/' + (0, path_1.basename)(p));
+        let ocamlPackagesNames = [];
+        for (let p of ocamlPackages) {
+            let META = p + '/META';
+            if (!(yield (0, fs_extra_1.pathExists)(META)))
+                continue;
+            let name = ((yield (0, fs_extra_1.readFile)(META, 'utf8')).match(/name="([^"]+)"/) || [])[1];
+            if (!name)
+                throw new Error("Bad META file " + META);
+            ocamlPackagesNames.push(name);
+            yield (0, fs_extra_1.symlink)(p, temp_packages_dir + '/' + name);
+        }
         let modules = (yield (0, fs_extra_1.readdir)(extractionProduct)).filter(x => x.endsWith('.ml'));
         let clean_ml_modules = yield (() => __awaiter(void 0, void 0, void 0, function* () {
             let links = yield Promise.all(modules.map((m) => __awaiter(void 0, void 0, void 0, function* () {
@@ -30,10 +40,12 @@ let OCamlCmxsBuilder = ({ ocamlBinaries, ocamlPackages, extractionProduct, cmxsN
             return () => __awaiter(void 0, void 0, void 0, function* () { yield Promise.all(links.map(link => (0, fs_extra_1.unlink)(link))); });
         }))();
         yield (0, fs_extra_1.writeFile)(`${dest}/${cmxsName}.mllib`, modules.map(m => m.replace(/[.]ml$/, '')).join('\n'));
-        yield (0, Utils_1.execFile)("ocamlbuild", [
+        // TODO!
+        // ocamlPackages = ocamlPackages.map(p => basename(p));
+        let rr = yield (0, Utils_1.execFile)(log)("ocamlbuild", [
             ["-use-ocamlfind", "-cflag", "-g"],
             ["-package", "fstar-tactics-lib"],
-            ocamlPackages.map(p => ["-package", (0, path_1.basename)(p)]).flat(),
+            ocamlPackagesNames.map(p => ["-package", p]).flat(),
             [cmxsName + ".cmxs"]
         ].flat(), {
             cwd: dest,
@@ -52,14 +64,16 @@ let OCamlCmxsBuilder = ({ ocamlBinaries, ocamlPackages, extractionProduct, cmxsN
         for (let name of yield (0, fs_extra_1.readdir)(`${dest}/_build`)) {
             let path = `${dest}/_build/${name}`;
             if (name.match(/[.]cm(i|a|x[sa]?)$/))
-                yield (0, fs_extra_1.rename)(path, `${dest}/${name}`);
-            else
+                yield (0, fs_extra_1.move)(path, `${dest}/${name}`);
+            else {
                 yield (0, fs_extra_1.unlink)(path);
+            }
         }
         yield (0, fs_extra_1.rmdir)(`${dest}/_build/`);
-        clean_ml_modules();
+        yield (0, fs_extra_1.writeFile)(`${dest}/META`, `name="${cmxsName}"
+requires="${ocamlPackagesNames.join(',')}"`);
+        yield clean_ml_modules();
     }));
     return dest;
-});
-exports.OCamlCmxsBuilder = OCamlCmxsBuilder;
+}));
 //# sourceMappingURL=OCamlCmxsBuilder.js.map

@@ -8,21 +8,25 @@ import { program } from "commander"
 import inquirer, { Question, QuestionCollection } from "inquirer"
 import path from "path"
 import { pathExists, readdir, readFile, stat, writeFile } from "fs-extra"
-import { computeLibMetadata, Config, getUnresolvedPackageSet, mkDefaultConfig, PACKAGE_FILE_NAME } from "./utils/Config"
+import { computeLibMetadata, Config, getUnresolvedPackageSet, getUnresolvedPackageSet_with_overrides, mkDefaultConfig, PACKAGE_FILE_NAME } from "./utils/Config"
 import { mapResult, validators } from "./utils/Validation"
 import { ResolvePackage, ResolvePackageSet } from "./package-level/ResolvePackageSet"
-import { ocamlBinariesOfEnv, resolveVerificationBinariesWithEnv, verificationOptions_to_flags } from "./utils/Utils"
-import { CmxsOfLibrary, ExtractTarget, IncludePathsOfLibrary_excludingSelf } from "./library-level/All"
+import { defaultLogger, ocamlBinariesOfEnv, resolveCmxsFilename, resolveVerificationBinariesWithEnv, verificationOptions_to_flags } from "./utils/Utils"
+import { PluginOfLibrary, ExtractTarget, CollectCheckedOfLibrary, CollectModulesOfLibrary, CollectPluginsOfLibrary } from "./library-level/All"
 
 import chalk from 'chalk'
 import { fstar } from "./utils/FStarCli"
 import { ErrorFPM } from "./utils/Exn"
+import { depTree } from "./module-level/DepTree"
+import { rootLogger } from "./utils/Log"
 
 let getFiles = async (dir: string): Promise<string[]> =>
     (await Promise.all((await readdir(dir)).map(async (subdir: string): Promise<string[]> => {
         const res = path.resolve(dir, subdir);
         return (await stat(res)).isDirectory() ? getFiles(res) : [res];
     }))).flat();
+
+let log = defaultLogger.child({ module: "cli" });
 
 program
     .name('fpm')
@@ -56,9 +60,10 @@ let init_questions = () => [
 
 program.command('init')
     .action(async () => {
-        let root = process.cwd();
-        if (await pathExists(root + '/' + PACKAGE_FILE_NAME)) {
-            console.error(`The file [${root + '/' + PACKAGE_FILE_NAME}] exists already, aborting.`)
+        const root = process.cwd();
+        const package_file_path = root + '/' + PACKAGE_FILE_NAME;
+        if (await pathExists(package_file_path)) {
+            log.error({ root, package_file_path }, `The file [${package_file_path}] exists already, aborting.`)
             process.exit(1);
         }
 
@@ -74,13 +79,12 @@ program.command('init')
         }
         let pkg: types.packageT["Unresolved"] = { name, ...opts, lib };
 
-        console.log(`The package definition to be written to ${PACKAGE_FILE_NAME} is:`);
-        console.log(pkg);
+        log.info(pkg, `The package definition to be written to ${PACKAGE_FILE_NAME} is:`);
         if ((await inquirer.prompt({ name: 'v', message: 'Save this?', type: 'confirm', default: true })).v) {
-            await writeFile(root + '/' + PACKAGE_FILE_NAME, JSON.stringify(pkg, null, 4));
-            console.log(`Wrote file [${root + '/' + PACKAGE_FILE_NAME}]!`);
+            await writeFile(package_file_path, JSON.stringify(pkg, null, 4));
+            log.info(`Wrote file [${package_file_path}]!`);
         } else {
-            console.log('Abort.')
+            log.error('Abort.')
             process.exit(1);
         }
     })
@@ -92,16 +96,16 @@ let loadPackage = async (): Promise<types.packageT["Unresolved"]> => {
     try {
         contents = await readFile(path, 'utf8');
     } catch (e) {
-        console.error(`Error: cannot read package file ${chalk.bold(path)}. Aborting.`);
+        log.error({}, `Error: cannot read package file ${chalk.bold(path)}. Aborting.`);
         process.exit(1);
     }
     return mapResult(
         validators.packageT.Unresolved(JSON.parse(contents)),
         p => p,
         err => {
-            console.error(`The package file ${chalk.bold(path)} is invalid. Aborting.`);
-            console.error(`Validation error details:`);
-            console.error(err);
+            log.error({}, `The package file ${chalk.bold(path)} is invalid. Aborting.`);
+            log.error({}, `Validation error details:`);
+            log.error(err);
             process.exit(1);
         }
     );
@@ -115,10 +119,11 @@ let withCurrent = <T>(f: (args: {
     verificationBinaries: types.verificationBinaries["Resolved"]
 }, ...rest: any[]) => Promise<T>) => async (...rest: any[]) => {
     let src = process.cwd();
-    let config = mkDefaultConfig();
-    let unresolved_ps = await getUnresolvedPackageSet(config);
+    let config = await mkDefaultConfig();
+    // TODO, remove [_with_overrides] below, and figure out something better
+    let unresolved_ps = await getUnresolvedPackageSet_with_overrides(config);
     let pkg = await loadPackage();
-    let packageSet = await ResolvePackageSet(config)({
+    let packageSet = await ResolvePackageSet(config, rootLogger)({
         packageSet: unresolved_ps,
         packages: pkg.lib.dependencies
     });
@@ -135,13 +140,20 @@ program.command('lock')
 
 program.command('make')
     .action(withCurrent(async ({ pkg, config, verificationBinaries }) => {
-        call(config)({
+        await call(config, rootLogger)({
             VerifyLibrary: {
                 lib: pkg.lib,
                 ocamlBinaries: await ocamlBinariesOfEnv(),
                 verificationBinaries
             }
-        })
+        });
+        await call(config, rootLogger)({
+            PluginOfLibrary: {
+                lib: pkg.lib,
+                ocamlBinaries: await ocamlBinariesOfEnv(),
+                verificationBinaries
+            }
+        });
     }))
 
 program.command('extract')
@@ -159,7 +171,7 @@ program.command('extract')
             process.exit(1);
         }
         let target = (pkg.extractions || {})[targetName];
-        call(config)({
+        call(config, rootLogger)({
             ExtractTarget: {
                 target,
                 ocamlBinaries: await ocamlBinariesOfEnv(),
@@ -174,18 +186,18 @@ program.command('fstar')
         let lib = pkg.lib;
         let ocamlBinaries = await ocamlBinariesOfEnv()
         let include: string[] = [...new Set([
-            ...await IncludePathsOfLibrary_excludingSelf(config)({
-                lib, verificationBinaries, ocamlBinaries
+            ...await CollectCheckedOfLibrary(config, rootLogger)({
+                lib, verificationBinaries, ocamlBinaries, excludeSelf: true
             }),
-            ...pkg.lib.modules.map(path.dirname)
+            ...await CollectModulesOfLibrary(config, rootLogger)({
+                lib
+            }),
         ])];
-        let cmxs_files = await Promise.all(lib.dependencies.map(lib =>
-            CmxsOfLibrary(config)({ lib, ocamlBinaries, verificationBinaries })
-        ));
-        fstar(
+        let cmxs_files = await CollectPluginsOfLibrary(config, rootLogger)({ lib, verificationBinaries, ocamlBinaries, excludeSelf: true });
+        fstar("Running F*")(rootLogger)(
             {
-                bin: verificationBinaries,
-                include, load_cmxs: cmxs_files.map(p => path.basename(p))
+                bin: verificationBinaries, include,
+                load_cmxs: await Promise.all(cmxs_files.map(resolveCmxsFilename))
             },
             ...verificationOptions_to_flags(lib.verificationOptions),
             ...args

@@ -8,7 +8,8 @@ import * as path from "path"
 import { Config, getUnresolvedPackageSet } from './utils/Config'
 import { ocamlBinariesOfEnv } from './utils/Utils'
 import { ResolvePackageSet } from './package-level/ResolvePackageSet'
-import { IncludePathsOfLibrary, CmxsOfLibrary, CmxsFilesOfLibrary, VerifyLibrary } from './library-level/All'
+import { VerifyLibrary } from './library-level/All'
+import { rootLogger } from "./utils/Log"
 
 function readStream(stream: NodeJS.ReadWriteStream, encoding: BufferEncoding = "utf8"):
     Promise<string> {
@@ -82,12 +83,12 @@ let ExtractTarget = "TODO" as any as api.ExtractTarget;
     // await prepareCache(config);
     let unresolved_ps = await getUnresolvedPackageSet(config);
     // let { rev, packageSet: unresolved_ps } = await readPackageSet(cachePackageSetPath(config));
-    let ps = await ResolvePackageSet(config)({
+    let ps = await ResolvePackageSet(config, rootLogger)({
         packageSet: unresolved_ps,
         packages: ['foo']
     });
 
-    await VerifyLibrary(config)({
+    await VerifyLibrary(config, rootLogger)({
         lib: ps['foo'].lib,
         verificationBinaries: ({ fstar_binary: "fstar.exe", z3_binary: "z3.exe" } as any),
         ocamlBinaries: ocamlBins
